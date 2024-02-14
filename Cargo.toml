@@ -1,0 +1,15 @@
+[package]
+authors = ["voidpumpkin <32368314+voidpumpkin@users.noreply.github.com>"]
+edition = "2021"
+name = "structural-convert"
+version = "0.1.0"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1"
+quote = "1"
+rustc-workspace-hack = "1.0.0"
+syn = { version = "1", features = ["extra-traits"] }
+darling = "0.14.4"
