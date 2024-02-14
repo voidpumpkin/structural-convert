@@ -2,7 +2,11 @@
 authors = ["voidpumpkin <32368314+voidpumpkin@users.noreply.github.com>"]
 edition = "2021"
 name = "structural-convert"
+description = "Derive conversion traits when items are structurally similar"
 version = "0.1.0"
+license-file = "LICENSE"
+repository = "https://github.com/voidpumpkin/structural-convert/"
+readme = "README.md"
 
 [lib]
 proc-macro = true
