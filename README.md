@@ -6,13 +6,16 @@ Inspired by serde and struct-convert crates.
 
 ## Features
 
-- One to one mapping
-- Inner fields type conversion using `.into()`
+- One to one fields mapping derive for
+  - From
+  - Into
+  - TryFrom
+  - TryInto
+- Inner fields type conversion using `.into()`/`.try_into()`
 
 ## Features Wishlist
 
 - Skipping fields
-- Derive TryFrom
 - Rename fields
 
 ## Examples

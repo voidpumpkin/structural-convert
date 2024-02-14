@@ -17,6 +17,8 @@ use syn::Result;
 
 mod create_from_impl_for_enum;
 mod create_from_impl_for_struct;
+mod create_try_from_impl_for_enum;
+mod create_try_from_impl_for_struct;
 mod on_enum_data;
 mod on_fields_named;
 mod on_fields_unnamed;
@@ -24,11 +26,15 @@ mod on_struct_data;
 
 #[derive(Debug, Default, FromDeriveInput)]
 #[darling(default, attributes(convert))]
-struct MetaOpts {
+struct ContainerAttributes {
     #[darling(multiple)]
     into: Vec<Path>,
     #[darling(multiple)]
     from: Vec<Path>,
+    #[darling(multiple)]
+    try_into: Vec<Path>,
+    #[darling(multiple)]
+    try_from: Vec<Path>,
 }
 
 #[derive(Debug, Default, Clone, FromAttributes)]
@@ -39,10 +45,7 @@ struct FiledOpts {
 }
 
 pub fn structural_convert_impl(input: DeriveInput) -> Result<TokenStream> {
-    let MetaOpts {
-        into: into_paths,
-        from: from_paths,
-    } = MetaOpts::from_derive_input(&input)?;
+    let container_attributes = ContainerAttributes::from_derive_input(&input)?;
 
     let DeriveInput {
         ident,
@@ -67,11 +70,9 @@ pub fn structural_convert_impl(input: DeriveInput) -> Result<TokenStream> {
 
     let tokens = match data {
         Data::Struct(struct_data) => {
-            on_struct_data(&input_ident_path, &struct_data, &into_paths, &from_paths)
+            on_struct_data(&input_ident_path, &struct_data, &container_attributes)
         }
-        Data::Enum(enum_data) => {
-            on_enum_data(&input_ident_path, &enum_data, &into_paths, &from_paths)
-        }
+        Data::Enum(enum_data) => on_enum_data(&input_ident_path, &enum_data, &container_attributes),
         Data::Union(_union_data) => unimplemented!("Unions are not implemented"),
     };
 
