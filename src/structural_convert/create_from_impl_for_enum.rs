@@ -2,6 +2,7 @@ use crate::structural_convert::on_fields_named::on_fields_named;
 use crate::structural_convert::on_fields_unnamed::on_fields_unnamed;
 use crate::structural_convert::FromFieldAttributes;
 use darling::FromAttributes;
+use proc_macro2::Ident;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::DataEnum;
@@ -15,13 +16,15 @@ pub(crate) fn create_from_impl_for_enum(
 ) -> TokenStream {
     let match_branches = enum_data.variants.iter().filter_map(|variant| {
         let variant_ident = variant.ident.clone();
-        let attrs = FromFieldAttributes::from_attributes(&variant.attrs).expect("Invalid field attributes").from;
-        let default_attrs = attrs.iter().find(|e| e.target.is_none());
-        let has_targeted_attrs = attrs.iter().any(|e|e.target.is_some());
+        let FromFieldAttributes { from: from_attrs, into: into_attrs } = FromFieldAttributes::from_attributes(&variant.attrs).expect("Invalid field attributes");
+
+        // BEGIN FROM
+        let default_attrs = from_attrs.iter().find(|e| e.target.is_none());
+        let has_targeted_attrs = from_attrs.iter().any(|e|e.target.is_some());
         if default_attrs.is_some() && has_targeted_attrs {
             panic!("For fields mixing attributes targeted and not targeted is not allowed");
         }
-        let skip = attrs.iter().any(|e| match &e.target {
+        let skip = from_attrs.iter().any(|e| match &e.target {
             Some(target) if target == from_path => e.skip,
             Some(_) => false,
             None => e.skip,
@@ -29,25 +32,48 @@ pub(crate) fn create_from_impl_for_enum(
         if skip {
             return None;
         }
+
+        let from_variant_ident: &Ident = from_attrs.iter().find_map(|e| match &e.target {
+            Some(target) if target == from_path => e.rename.as_ref(),
+            Some(_) => None,
+            _ => e.rename.as_ref(),
+        }).unwrap_or(&variant_ident);
+        // END FROM
+
+        // BEGIN INTO
+        let default_attrs = into_attrs.iter().find(|e| e.target.is_none());
+        let has_targeted_attrs = into_attrs.iter().any(|e|e.target.is_some());
+        if default_attrs.is_some() && has_targeted_attrs {
+            panic!("For fields mixing attributes targeted and not targeted is not allowed");
+        }
+
+        let into_variant_ident: &Ident = into_attrs.iter().find_map(|e| match &e.target {
+            Some(target) if target == into_path => e.rename.as_ref(),
+            Some(_) => None,
+            _ => e.rename.as_ref(),
+        }).unwrap_or(&variant_ident);
+        // END INTO
+
+
         let branch = match &variant.fields {
             Fields::Unit => {
                 quote! {
-                    #from_path::#variant_ident => #into_path::#variant_ident.into()
+                    #from_path::#from_variant_ident => #into_path::#into_variant_ident.into()
                 }
             }
             Fields::Unnamed(fields_unnamed) => {
                 let field_tokens = on_fields_unnamed(fields_unnamed);
                 quote! {
-                    #from_path::#variant_ident(#(#field_tokens,)* ..) => #into_path::#variant_ident(#(#field_tokens.into(),)*)
+                    #from_path::#from_variant_ident(#(#field_tokens,)* ..) => #into_path::#into_variant_ident(#(#field_tokens.into(),)*)
                 }
             }
             Fields::Named(fields_named) => {
                 let field_tokens = on_fields_named(fields_named);
                 quote! {
-                    #from_path::#variant_ident{
+                    #from_path::#from_variant_ident{
                         #(#field_tokens,)*
                         ..
-                    } => #into_path::#variant_ident{
+                    } => #into_path::#into_variant_ident{
                         #(#field_tokens: #field_tokens.into(),)*
                     }
                 }

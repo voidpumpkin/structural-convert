@@ -7,6 +7,7 @@ use darling::FromDeriveInput;
 use darling::FromMeta;
 use on_enum_data::on_enum_data;
 use on_struct_data::on_struct_data;
+use proc_macro2::Ident;
 use proc_macro2::TokenStream;
 use syn::punctuated::Punctuated;
 use syn::token::Colon2;
@@ -43,6 +44,8 @@ struct ContainerAttributes {
 pub struct TryFromFieldAttributes {
     #[darling(multiple)]
     try_from: Vec<FieldInnerAttributes>,
+    #[darling(multiple)]
+    try_into: Vec<IntoFieldInnerAttributes>,
 }
 
 #[derive(Debug, Default, Clone, FromAttributes)]
@@ -50,6 +53,8 @@ pub struct TryFromFieldAttributes {
 pub struct FromFieldAttributes {
     #[darling(multiple)]
     from: Vec<FieldInnerAttributes>,
+    #[darling(multiple)]
+    into: Vec<IntoFieldInnerAttributes>,
 }
 
 #[derive(Debug, Default, Clone, FromMeta)]
@@ -58,21 +63,16 @@ struct FieldInnerAttributes {
     #[darling(rename = "for")]
     target: Option<Path>,
     skip: bool,
+    rename: Option<Ident>,
 }
 
-// #[derive(Debug, Default, Clone, FromAttributes)]
-// #[darling(attributes(convert))]
-// pub struct TryIntoFieldAttributes {
-//     #[darling(multiple)]
-//     try_into: Vec<FieldInnerAttributes>,
-// }
-
-// #[derive(Debug, Default, Clone, FromAttributes)]
-// #[darling(attributes(convert))]
-// pub struct IntoFieldAttributes {
-//     #[darling(multiple)]
-//     into: Vec<FieldInnerAttributes>,
-// }
+#[derive(Debug, Default, Clone, FromMeta)]
+#[darling(default)]
+struct IntoFieldInnerAttributes {
+    #[darling(rename = "for")]
+    target: Option<Path>,
+    rename: Option<Ident>,
+}
 
 pub fn structural_convert_impl(input: DeriveInput) -> Result<TokenStream> {
     let container_attributes = ContainerAttributes::from_derive_input(&input)?;
