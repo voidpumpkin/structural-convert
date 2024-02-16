@@ -3,7 +3,7 @@ use structural_convert::StructuralConvert;
 #[test]
 fn fields_named_not_targeted() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into = "Lhs")]
+    #[convert(into(path = "Lhs"))]
     struct Rhs {
         #[convert(into(rename = "z"))]
         a: i8,
@@ -22,7 +22,7 @@ fn fields_named_not_targeted() {
 #[test]
 fn fields_named_targeted() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into = "Lhs1", into = "Lhs2")]
+    #[convert(into(path = "Lhs1"), into(path = "Lhs2"))]
     struct Rhs {
         #[convert(into(for = "Lhs1", rename = "z"))]
         a: i8,

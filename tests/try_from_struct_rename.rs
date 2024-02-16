@@ -9,7 +9,7 @@ fn fields_named_not_targeted() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from = "Rhs")]
+    #[convert(try_from(path = "Rhs"))]
     struct Lhs {
         #[convert(try_from(rename = "z"))]
         a: i32,
@@ -34,7 +34,7 @@ fn fields_named_targeted() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from = "Rhs1", try_from = "Rhs2")]
+    #[convert(try_from(path = "Rhs1"), try_from(path = "Rhs2"))]
     struct Lhs {
         #[convert(try_from(for = "Rhs1", rename = "z"))]
         a: i32,

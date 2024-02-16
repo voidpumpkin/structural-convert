@@ -3,7 +3,7 @@ use structural_convert::StructuralConvert;
 #[test]
 fn variant_is_unit_non_targeted() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into = "Lhs")]
+    #[convert(into(path = "Lhs"))]
     enum Rhs {
         #[convert(into(rename = "X"))]
         A,
@@ -23,7 +23,7 @@ fn variant_is_unit_non_targeted() {
 #[test]
 fn variant_is_unit_targeted() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into = "Lhs1", into = "Lhs2")]
+    #[convert(into(path = "Lhs1"), into(path = "Lhs2"))]
     enum Rhs {
         #[convert(into(for = "Lhs1", rename = "X"), into(for = "Lhs2"))]
         A,
@@ -52,7 +52,7 @@ fn variant_is_unit_targeted() {
 #[test]
 fn variant_is_unnamed() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into = "Lhs")]
+    #[convert(into(path = "Lhs"))]
     enum Rhs {
         #[convert(into(rename = "X"))]
         A(i8, u32),
@@ -69,7 +69,7 @@ fn variant_is_unnamed() {
 #[test]
 fn variant_is_named() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into = "Lhs")]
+    #[convert(into(path = "Lhs"))]
     enum Rhs {
         #[convert(into(rename = "X"))]
         A { z: i8, x: u32 },
@@ -86,7 +86,7 @@ fn variant_is_named() {
 #[test]
 fn fields_named_not_targeted() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into = "Lhs")]
+    #[convert(into(path = "Lhs"))]
     enum Rhs {
         A {
             #[convert(into(rename = "z"))]
@@ -106,7 +106,7 @@ fn fields_named_not_targeted() {
 #[test]
 fn fields_named_targeted() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into = "Lhs1", into = "Lhs2")]
+    #[convert(into(path = "Lhs1"), into(path = "Lhs2"))]
     enum Rhs {
         A {
             #[convert(into(for = "Lhs1::A", rename = "z"))]

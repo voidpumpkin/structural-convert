@@ -36,7 +36,7 @@ fn fields_unnamed() {}
 /// Idea for api 2:
 /// ```
 /// #[derive(Debug, PartialEq, StructuralConvert)]
-/// #[convert(into = "Lhs")]
+/// #[convert(into(path = "Lhs"))]
 /// struct Rhs {
 ///     z: i8,
 ///     x: u32,

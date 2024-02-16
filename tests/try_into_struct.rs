@@ -3,7 +3,7 @@ use structural_convert::StructuralConvert;
 #[test]
 fn unit() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_into = "Lhs")]
+    #[convert(try_into(path = "Lhs"))]
     struct Rhs;
 
     #[derive(Debug, PartialEq)]
@@ -15,7 +15,7 @@ fn unit() {
 #[test]
 fn fields_unnamed() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_into = "Lhs")]
+    #[convert(try_into(path = "Lhs"))]
     struct Rhs(i8, u32);
 
     #[derive(Debug, PartialEq)]
@@ -27,7 +27,7 @@ fn fields_unnamed() {
 #[test]
 fn fields_named() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_into = "Lhs")]
+    #[convert(try_into(path = "Lhs"))]
     struct Rhs {
         z: i8,
         x: u32,

@@ -4,6 +4,7 @@
 
 use darling::FromAttributes;
 use darling::FromDeriveInput;
+use darling::FromMeta;
 use on_enum_data::on_enum_data;
 use on_struct_data::on_struct_data;
 use proc_macro2::TokenStream;
@@ -33,13 +34,18 @@ mod on_struct_data;
 #[darling(default, attributes(convert))]
 struct ContainerAttributes {
     #[darling(multiple)]
-    into: Vec<Path>,
+    into: Vec<InnerContainerAttributes>,
     #[darling(multiple)]
-    from: Vec<Path>,
+    from: Vec<InnerContainerAttributes>,
     #[darling(multiple)]
-    try_into: Vec<Path>,
+    try_into: Vec<InnerContainerAttributes>,
     #[darling(multiple)]
-    try_from: Vec<Path>,
+    try_from: Vec<InnerContainerAttributes>,
+}
+
+#[derive(Debug, Clone, FromMeta)]
+pub struct InnerContainerAttributes {
+    path: Path,
 }
 
 #[derive(Debug, Default, Clone, FromAttributes)]
