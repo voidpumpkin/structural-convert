@@ -1,9 +1,16 @@
-use crate::structural_convert::create_from_impl_for_struct::create_from_impl_for_struct;
-use crate::structural_convert::create_try_from_impl_for_struct::create_try_from_impl_for_struct;
+use create_from_impl_for_struct::create_from_impl_for_struct;
+use create_into_impl_for_struct::create_into_impl_for_struct;
+use create_try_from_impl_for_struct::create_try_from_impl_for_struct;
+use create_try_into_impl_for_struct::create_try_into_impl_for_struct;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::DataStruct;
 use syn::Path;
+
+pub mod create_from_impl_for_struct;
+pub mod create_into_impl_for_struct;
+pub mod create_try_from_impl_for_struct;
+pub mod create_try_into_impl_for_struct;
 
 use super::ContainerAttributes;
 
@@ -21,7 +28,7 @@ pub(crate) fn on_struct_data(
 
     let into_tokens = into_paths
         .iter()
-        .map(|into_path| create_from_impl_for_struct(input_ident_path, struct_data, into_path))
+        .map(|into_path| create_into_impl_for_struct(input_ident_path, struct_data, into_path))
         .collect::<Vec<_>>();
     let from_tokens = from_paths
         .iter()
@@ -29,7 +36,7 @@ pub(crate) fn on_struct_data(
         .collect::<Vec<_>>();
     let try_into_tokens = try_into_paths
         .iter()
-        .map(|into_path| create_try_from_impl_for_struct(input_ident_path, struct_data, into_path))
+        .map(|into_path| create_try_into_impl_for_struct(input_ident_path, struct_data, into_path))
         .collect::<Vec<_>>();
     let try_from_tokens = try_from_paths
         .iter()

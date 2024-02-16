@@ -4,10 +4,8 @@
 
 use darling::FromAttributes;
 use darling::FromDeriveInput;
-use darling::FromMeta;
 use on_enum_data::on_enum_data;
 use on_struct_data::on_struct_data;
-use proc_macro2::Ident;
 use proc_macro2::TokenStream;
 use syn::punctuated::Punctuated;
 use syn::token::Colon2;
@@ -17,10 +15,11 @@ use syn::Path;
 use syn::PathSegment;
 use syn::Result;
 
-mod create_from_impl_for_enum;
-mod create_from_impl_for_struct;
-mod create_try_from_impl_for_enum;
-mod create_try_from_impl_for_struct;
+use self::on_enum_data::create_from_impl_for_enum::FromEnumVariantAttributes;
+use self::on_enum_data::create_into_impl_for_enum::IntoEnumVariantAttributes;
+use self::on_enum_data::create_try_from_impl_for_enum::TryFromEnumVariantAttributes;
+use self::on_enum_data::create_try_into_impl_for_enum::TryIntoEnumVariantAttributes;
+
 mod on_enum_data;
 mod on_fields_named;
 mod on_fields_unnamed;
@@ -41,37 +40,15 @@ struct ContainerAttributes {
 
 #[derive(Debug, Default, Clone, FromAttributes)]
 #[darling(attributes(convert))]
-pub struct TryFromFieldAttributes {
+pub struct EnumVariantAttributes {
     #[darling(multiple)]
-    try_from: Vec<FieldInnerAttributes>,
+    from: Vec<FromEnumVariantAttributes>,
     #[darling(multiple)]
-    try_into: Vec<IntoFieldInnerAttributes>,
-}
-
-#[derive(Debug, Default, Clone, FromAttributes)]
-#[darling(attributes(convert))]
-pub struct FromFieldAttributes {
+    into: Vec<IntoEnumVariantAttributes>,
     #[darling(multiple)]
-    from: Vec<FieldInnerAttributes>,
+    try_from: Vec<TryFromEnumVariantAttributes>,
     #[darling(multiple)]
-    into: Vec<IntoFieldInnerAttributes>,
-}
-
-#[derive(Debug, Default, Clone, FromMeta)]
-#[darling(default)]
-struct FieldInnerAttributes {
-    #[darling(rename = "for")]
-    target: Option<Path>,
-    skip: bool,
-    rename: Option<Ident>,
-}
-
-#[derive(Debug, Default, Clone, FromMeta)]
-#[darling(default)]
-struct IntoFieldInnerAttributes {
-    #[darling(rename = "for")]
-    target: Option<Path>,
-    rename: Option<Ident>,
+    try_into: Vec<TryIntoEnumVariantAttributes>,
 }
 
 pub fn structural_convert_impl(input: DeriveInput) -> Result<TokenStream> {

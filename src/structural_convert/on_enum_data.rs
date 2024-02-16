@@ -1,10 +1,17 @@
-use super::create_from_impl_for_enum::create_from_impl_for_enum;
 use super::ContainerAttributes;
-use crate::structural_convert::create_try_from_impl_for_enum::create_try_from_impl_for_enum;
+use create_from_impl_for_enum::create_from_impl_for_enum;
+use create_into_impl_for_enum::create_into_impl_for_enum;
+use create_try_from_impl_for_enum::create_try_from_impl_for_enum;
+use create_try_into_impl_for_enum::create_try_into_impl_for_enum;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::DataEnum;
 use syn::Path;
+
+pub mod create_from_impl_for_enum;
+pub mod create_into_impl_for_enum;
+pub mod create_try_from_impl_for_enum;
+pub mod create_try_into_impl_for_enum;
 
 pub(crate) fn on_enum_data(
     input_ident_path: &Path,
@@ -20,7 +27,7 @@ pub(crate) fn on_enum_data(
 
     let into_tokens = into_paths
         .iter()
-        .map(|into_path| create_from_impl_for_enum(input_ident_path, enum_data, into_path))
+        .map(|into_path| create_into_impl_for_enum(input_ident_path, enum_data, into_path))
         .collect::<Vec<TokenStream>>();
     let from_tokens = from_paths
         .iter()
@@ -28,7 +35,7 @@ pub(crate) fn on_enum_data(
         .collect::<Vec<TokenStream>>();
     let try_into_tokens = try_into_paths
         .iter()
-        .map(|into_path| create_try_from_impl_for_enum(input_ident_path, enum_data, into_path))
+        .map(|into_path| create_try_into_impl_for_enum(input_ident_path, enum_data, into_path))
         .collect::<Vec<TokenStream>>();
     let try_from_tokens = try_from_paths
         .iter()
