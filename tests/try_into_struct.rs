@@ -10,7 +10,6 @@ fn unit() {
     struct Lhs;
 
     assert_eq!(Lhs, Rhs.try_into().unwrap());
-    assert_eq!(Lhs, Rhs.try_into().unwrap());
 }
 
 #[test]
@@ -22,7 +21,6 @@ fn fields_unnamed() {
     #[derive(Debug, PartialEq)]
     struct Lhs(i32, u32);
 
-    assert_eq!(Lhs(1, 2), Rhs(1, 2).try_into().unwrap());
     assert_eq!(Lhs(1, 2), Rhs(1, 2).try_into().unwrap());
 }
 
@@ -41,6 +39,5 @@ fn fields_named() {
         x: u32,
     }
 
-    assert_eq!(Lhs { z: 1, x: 2 }, Rhs { z: 1, x: 2 }.try_into().unwrap());
     assert_eq!(Lhs { z: 1, x: 2 }, Rhs { z: 1, x: 2 }.try_into().unwrap());
 }

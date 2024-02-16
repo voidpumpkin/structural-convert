@@ -23,7 +23,6 @@ fn fields_unnamed() {
     struct Lhs(i32, u32);
 
     assert_eq!(Lhs(1, 2), Rhs(1, 2).into());
-    assert_eq!(Lhs(1, 2), Rhs(1, 2).into());
 }
 
 #[test]
@@ -41,6 +40,5 @@ fn fields_named() {
         x: u32,
     }
 
-    assert_eq!(Lhs { z: 1, x: 2 }, Rhs { z: 1, x: 2 }.into());
     assert_eq!(Lhs { z: 1, x: 2 }, Rhs { z: 1, x: 2 }.into());
 }
