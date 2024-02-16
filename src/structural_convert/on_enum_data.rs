@@ -12,6 +12,7 @@ pub mod create_from_impl_for_enum;
 pub mod create_into_impl_for_enum;
 pub mod create_try_from_impl_for_enum;
 pub mod create_try_into_impl_for_enum;
+pub mod utils;
 
 pub(crate) fn on_enum_data(
     input_ident_path: &Path,

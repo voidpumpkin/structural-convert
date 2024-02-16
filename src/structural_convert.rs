@@ -19,6 +19,10 @@ use self::on_enum_data::create_from_impl_for_enum::FromEnumVariantAttributes;
 use self::on_enum_data::create_into_impl_for_enum::IntoEnumVariantAttributes;
 use self::on_enum_data::create_try_from_impl_for_enum::TryFromEnumVariantAttributes;
 use self::on_enum_data::create_try_into_impl_for_enum::TryIntoEnumVariantAttributes;
+use self::on_fields_named::create_from_match_branch_for_fields_named::FromFieldNamedAttributes;
+use self::on_fields_named::create_into_match_branch_for_fields_named::IntoFieldNamedAttributes;
+use self::on_fields_named::create_try_from_match_branch_for_fields_named::TryFromFieldNamedAttributes;
+use self::on_fields_named::create_try_into_match_branch_for_fields_named::TryIntoFieldNamedAttributes;
 
 mod on_enum_data;
 mod on_fields_named;
@@ -49,6 +53,19 @@ pub struct EnumVariantAttributes {
     try_from: Vec<TryFromEnumVariantAttributes>,
     #[darling(multiple)]
     try_into: Vec<TryIntoEnumVariantAttributes>,
+}
+
+#[derive(Debug, Default, Clone, FromAttributes)]
+#[darling(attributes(convert))]
+pub struct FieldNamedAttributes {
+    #[darling(multiple)]
+    from: Vec<FromFieldNamedAttributes>,
+    #[darling(multiple)]
+    into: Vec<IntoFieldNamedAttributes>,
+    #[darling(multiple)]
+    try_from: Vec<TryFromFieldNamedAttributes>,
+    #[darling(multiple)]
+    try_into: Vec<TryIntoFieldNamedAttributes>,
 }
 
 pub fn structural_convert_impl(input: DeriveInput) -> Result<TokenStream> {

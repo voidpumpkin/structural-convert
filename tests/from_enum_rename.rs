@@ -90,3 +90,49 @@ fn variant_is_named() {
 
     assert_eq!(Lhs::A { z: 1, x: 2 }, Rhs::X { z: 1, x: 2, y: 3 }.into());
 }
+
+#[test]
+fn variant_is_named_fields_named_not_targeted() {
+    #[derive(Debug, PartialEq)]
+    enum Rhs {
+        A { z: i8, x: u32 },
+    }
+
+    #[derive(Debug, PartialEq, StructuralConvert)]
+    #[convert(from = "Rhs")]
+    enum Lhs {
+        A {
+            #[convert(from(rename = "z"))]
+            a: i32,
+            x: u32,
+        },
+    }
+
+    assert_eq!(Lhs::A { a: 1, x: 2 }, Rhs::A { z: 1, x: 2 }.into());
+}
+
+#[test]
+fn variant_is_named_fields_named_targeted() {
+    #[derive(Debug, PartialEq)]
+    enum Rhs1 {
+        A { z: i8, x: u32 },
+    }
+
+    #[derive(Debug, PartialEq)]
+    enum Rhs2 {
+        A { a: i8, x: u32 },
+    }
+
+    #[derive(Debug, PartialEq, StructuralConvert)]
+    #[convert(from = "Rhs1", from = "Rhs2")]
+    enum Lhs {
+        A {
+            #[convert(from(for = "Rhs1::A", rename = "z"))]
+            a: i32,
+            x: u32,
+        },
+    }
+
+    assert_eq!(Lhs::A { a: 1, x: 2 }, Rhs1::A { z: 1, x: 2 }.into());
+    assert_eq!(Lhs::A { a: 1, x: 2 }, Rhs2::A { a: 1, x: 2 }.into());
+}

@@ -1,4 +1,6 @@
-use crate::structural_convert::on_fields_named::on_fields_named;
+use crate::structural_convert::on_enum_data::utils::concat_enum_with_variant;
+use crate::structural_convert::on_fields_named::create_from_match_branch_for_fields_named::create_from_match_branch_for_fields_named;
+
 use crate::structural_convert::on_fields_unnamed::on_fields_unnamed;
 use crate::structural_convert::EnumVariantAttributes;
 use darling::FromAttributes;
@@ -24,58 +26,61 @@ pub(crate) fn create_from_impl_for_enum(
     enum_data: &DataEnum,
     into_path: &Path,
 ) -> TokenStream {
-    let match_branches = enum_data.variants.iter().filter_map(|variant| {
-        let variant_ident = variant.ident.clone();
-        let into_variant_ident = &variant_ident;
-        let from_attrs = EnumVariantAttributes::from_attributes(&variant.attrs).expect("Invalid field attributes").from;
+    let match_branches = enum_data
+        .variants
+        .iter()
+        .filter_map(|variant| {
+            let variant_ident = variant.ident.clone();
+            let into_variant_ident = &variant_ident;
+            let from_attrs = EnumVariantAttributes::from_attributes(&variant.attrs)
+                .expect("Invalid field attributes")
+                .from;
 
-        let default_attrs = from_attrs.iter().find(|e| e.target.is_none());
-        let has_targeted_attrs = from_attrs.iter().any(|e|e.target.is_some());
-        if default_attrs.is_some() && has_targeted_attrs {
-            panic!("For fields mixing attributes targeted and not targeted is not allowed");
-        }
-        let skip = from_attrs.iter().any(|e| match &e.target {
-            Some(target) if target == from_path => e.skip,
-            Some(_) => false,
-            None => e.skip,
-        });
-        if skip {
-            return None;
-        }
-
-        let from_variant_ident: &Ident = from_attrs.iter().find_map(|e| match &e.target {
-            Some(target) if target == from_path => e.rename.as_ref(),
-            Some(_) => None,
-            _ => e.rename.as_ref(),
-        }).unwrap_or(&variant_ident);
-
-
-        let branch = match &variant.fields {
-            Fields::Unit => {
-                quote! {
-                    #from_path::#from_variant_ident => #into_path::#into_variant_ident.into()
-                }
+            let default_attrs = from_attrs.iter().find(|e| e.target.is_none());
+            let has_targeted_attrs = from_attrs.iter().any(|e| e.target.is_some());
+            if default_attrs.is_some() && has_targeted_attrs {
+                panic!("For fields mixing attributes targeted and not targeted is not allowed");
             }
-            Fields::Unnamed(fields_unnamed) => {
-                let field_tokens = on_fields_unnamed(fields_unnamed);
-                quote! {
-                    #from_path::#from_variant_ident(#(#field_tokens,)* ..) => #into_path::#into_variant_ident(#(#field_tokens.into(),)*)
-                }
+            let skip = from_attrs.iter().any(|e| match &e.target {
+                Some(target) if target == from_path => e.skip,
+                Some(_) => false,
+                None => e.skip,
+            });
+            if skip {
+                return None;
             }
-            Fields::Named(fields_named) => {
-                let field_tokens = on_fields_named(fields_named);
-                quote! {
-                    #from_path::#from_variant_ident{
-                        #(#field_tokens,)*
-                        ..
-                    } => #into_path::#into_variant_ident{
-                        #(#field_tokens: #field_tokens.into(),)*
+
+            let from_variant_ident: &Ident = from_attrs
+                .iter()
+                .find_map(|e| match &e.target {
+                    Some(target) if target == from_path => e.rename.as_ref(),
+                    Some(_) => None,
+                    _ => e.rename.as_ref(),
+                })
+                .unwrap_or(&variant_ident);
+
+            let from_path = concat_enum_with_variant(from_path, from_variant_ident);
+            let into_path = concat_enum_with_variant(into_path, into_variant_ident);
+
+            let branch = match &variant.fields {
+                Fields::Unit => {
+                    quote! {
+                        #from_path => #into_path.into()
                     }
                 }
-            }
-        };
-        Some(branch)
-    }).collect::<Vec<_>>();
+                Fields::Unnamed(fields_unnamed) => {
+                    let field_tokens = on_fields_unnamed(fields_unnamed);
+                    quote! {
+                        #from_path(#(#field_tokens,)* ..) => #into_path(#(#field_tokens.into(),)*)
+                    }
+                }
+                Fields::Named(fields_named) => {
+                    create_from_match_branch_for_fields_named(&from_path, fields_named, &into_path)
+                }
+            };
+            Some(branch)
+        })
+        .collect::<Vec<_>>();
     quote!(
         #[automatically_derived]
         impl From<#from_path> for #into_path {

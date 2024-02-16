@@ -13,11 +13,10 @@ Inspired by serde and struct-convert crates.
   - TryInto
 - Inner fields type conversion using `.into()`/`.try_into()`
 - Field skip functionality when deriving for From and TryFrom
-- Rename enum variants
+- Rename enum variants and named fields
 
 ## Features Wishlist
 
-- Rename fields
 - Fallback to default per variant/field
 - Skipping fields for Into / TryInto, for:
   - Unnamed Enum variants

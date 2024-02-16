@@ -1,5 +1,9 @@
-use crate::structural_convert::on_fields_named::on_fields_named;
+use crate::structural_convert::on_fields_named::create_try_from_match_branch_for_fields_named::create_try_from_match_branch_for_fields_named;
 use crate::structural_convert::on_fields_unnamed::on_fields_unnamed;
+
+
+
+
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::DataStruct;
@@ -24,15 +28,7 @@ pub(crate) fn create_try_from_impl_for_struct(
             }
         }
         Fields::Named(fields_named) => {
-            let field_tokens = on_fields_named(fields_named);
-            quote! {
-                #from_path{
-                    #(#field_tokens,)*
-                    ..
-                } => #into_path{
-                    #(#field_tokens: #field_tokens.try_into().map_err(|_| "Failed to convert field".to_string())?,)*
-                }
-            }
+            create_try_from_match_branch_for_fields_named(from_path, fields_named, into_path)
         }
     };
     quote!(

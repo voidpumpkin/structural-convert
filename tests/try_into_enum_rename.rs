@@ -85,3 +85,58 @@ fn variant_is_named() {
         Rhs::A { z: 1, x: 2 }.try_into().unwrap()
     );
 }
+
+#[test]
+fn fields_named_not_targeted() {
+    #[derive(Debug, PartialEq, StructuralConvert)]
+    #[convert(try_into = "Lhs")]
+    enum Rhs {
+        A {
+            #[convert(try_into(rename = "z"))]
+            a: i8,
+            x: u32,
+        },
+    }
+
+    #[derive(Debug, PartialEq)]
+    enum Lhs {
+        A { z: i8, x: u32 },
+    }
+
+    assert_eq!(
+        Lhs::A { z: 1, x: 2 },
+        Rhs::A { a: 1, x: 2 }.try_into().unwrap()
+    );
+}
+
+#[test]
+fn fields_named_targeted() {
+    #[derive(Debug, PartialEq, StructuralConvert)]
+    #[convert(try_into = "Lhs1", try_into = "Lhs2")]
+    enum Rhs {
+        A {
+            #[convert(try_into(for = "Lhs1::A", rename = "z"))]
+            a: i8,
+            x: u32,
+        },
+    }
+
+    #[derive(Debug, PartialEq)]
+    enum Lhs1 {
+        A { z: i8, x: u32 },
+    }
+
+    #[derive(Debug, PartialEq)]
+    enum Lhs2 {
+        A { a: i8, x: u32 },
+    }
+
+    assert_eq!(
+        Lhs1::A { z: 1, x: 2 },
+        Rhs::A { a: 1, x: 2 }.try_into().unwrap()
+    );
+    assert_eq!(
+        Lhs2::A { a: 1, x: 2 },
+        Rhs::A { a: 1, x: 2 }.try_into().unwrap()
+    );
+}

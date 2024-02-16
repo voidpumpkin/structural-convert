@@ -1,4 +1,6 @@
-use crate::structural_convert::on_fields_named::on_fields_named;
+use crate::structural_convert::on_enum_data::utils::concat_enum_with_variant;
+use crate::structural_convert::on_fields_named::create_try_into_match_branch_for_fields_named::create_try_into_match_branch_for_fields_named;
+
 use crate::structural_convert::on_fields_unnamed::on_fields_unnamed;
 use crate::structural_convert::EnumVariantAttributes;
 use darling::FromAttributes;
@@ -41,29 +43,23 @@ pub(crate) fn create_try_into_impl_for_enum(
             _ => e.rename.as_ref(),
         }).unwrap_or(&variant_ident);
 
+        let from_path = concat_enum_with_variant(from_path, from_variant_ident);
+        let into_path = concat_enum_with_variant(into_path, into_variant_ident);
         
         let branch = match &variant.fields {
             Fields::Unit => {
                 quote! {
-                    #from_path::#from_variant_ident => #into_path::#into_variant_ident.try_into().map_err(|_| "Failed to convert field".to_string())?
+                    #from_path => #into_path.try_into().map_err(|_| "Failed to convert field".to_string())?
                 }
             }
             Fields::Unnamed(fields_unnamed) => {
                 let field_tokens = on_fields_unnamed(fields_unnamed);
                 quote! {
-                    #from_path::#from_variant_ident(#(#field_tokens,)* ..) => #into_path::#into_variant_ident(#(#field_tokens.try_into().map_err(|_| "Failed to convert field".to_string())?,)*)
+                    #from_path(#(#field_tokens,)* ..) => #into_path(#(#field_tokens.try_into().map_err(|_| "Failed to convert field".to_string())?,)*)
                 }
             }
             Fields::Named(fields_named) => {
-                let field_tokens = on_fields_named(fields_named);
-                quote! {
-                    #from_path::#from_variant_ident{
-                        #(#field_tokens,)*
-                        ..
-                    } => #into_path::#into_variant_ident{
-                        #(#field_tokens: #field_tokens.try_into().map_err(|_| "Failed to convert field".to_string())?,)*
-                    }
-                }
+                create_try_into_match_branch_for_fields_named(&from_path, fields_named, &into_path)
             }
         };
         Some(branch)
