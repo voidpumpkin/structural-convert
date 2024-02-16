@@ -34,20 +34,36 @@ mod on_struct_data;
 #[darling(default, attributes(convert))]
 struct ContainerAttributes {
     #[darling(multiple)]
-    into: Vec<InnerContainerAttributes>,
+    into: Vec<IntoContainerAttributes>,
     #[darling(multiple)]
-    from: Vec<InnerContainerAttributes>,
+    from: Vec<FromContainerAttributes>,
     #[darling(multiple)]
-    try_into: Vec<InnerContainerAttributes>,
+    try_into: Vec<TryIntoContainerAttributes>,
     #[darling(multiple)]
-    try_from: Vec<InnerContainerAttributes>,
+    try_from: Vec<TryFromContainerAttributes>,
 }
 
 #[derive(Debug, Clone, FromMeta)]
-pub struct InnerContainerAttributes {
+pub struct FromContainerAttributes {
     path: Path,
 }
 
+#[derive(Debug, Clone, FromMeta)]
+pub struct TryFromContainerAttributes {
+    path: Path,
+}
+
+#[derive(Debug, Clone, FromMeta)]
+pub struct IntoContainerAttributes {
+    path: Path,
+    skip_after: Option<usize>,
+}
+
+#[derive(Debug, Clone, FromMeta)]
+pub struct TryIntoContainerAttributes {
+    path: Path,
+    skip_after: Option<usize>,
+}
 #[derive(Debug, Default, Clone, FromAttributes)]
 #[darling(attributes(convert))]
 pub struct EnumVariantAttributes {

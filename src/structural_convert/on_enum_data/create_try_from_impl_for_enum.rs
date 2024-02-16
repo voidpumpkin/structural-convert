@@ -45,6 +45,7 @@ pub(crate) fn create_try_from_impl_for_enum(
             return None;
         }
 
+
         let from_variant_ident: &Ident = from_attrs.iter().find_map(|e| match &e.target {
             Some(target) if target == from_path => e.rename.as_ref(),
             Some(_) => None,
@@ -61,7 +62,7 @@ pub(crate) fn create_try_from_impl_for_enum(
                 }
             }
             Fields::Unnamed(fields_unnamed) => {
-                let field_tokens = on_fields_unnamed(fields_unnamed);
+                let field_tokens = on_fields_unnamed(fields_unnamed,None);
                 quote! {
                     #from_path(#(#field_tokens,)* ..) => #into_path(#(#field_tokens.try_into().map_err(|_| "Failed to convert field".to_string())?,)*)
                 }

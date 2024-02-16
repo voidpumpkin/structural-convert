@@ -1,9 +1,6 @@
 use crate::structural_convert::on_fields_named::create_from_match_branch_for_fields_named::create_from_match_branch_for_fields_named;
 use crate::structural_convert::on_fields_unnamed::on_fields_unnamed;
 
-
-
-
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::DataStruct;
@@ -22,7 +19,7 @@ pub(crate) fn create_from_impl_for_struct(
             }
         }
         Fields::Unnamed(fields_unnamed) => {
-            let field_tokens = on_fields_unnamed(fields_unnamed);
+            let field_tokens = on_fields_unnamed(fields_unnamed, None);
             quote! {
                 #from_path(#(#field_tokens,)* ..) => #into_path(#(#field_tokens.into(),)*)
             }

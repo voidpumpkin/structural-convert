@@ -69,7 +69,7 @@ pub(crate) fn create_from_impl_for_enum(
                     }
                 }
                 Fields::Unnamed(fields_unnamed) => {
-                    let field_tokens = on_fields_unnamed(fields_unnamed);
+                    let field_tokens = on_fields_unnamed(fields_unnamed, None);
                     quote! {
                         #from_path(#(#field_tokens,)* ..) => #into_path(#(#field_tokens.into(),)*)
                     }

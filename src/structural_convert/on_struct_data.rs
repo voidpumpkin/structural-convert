@@ -28,7 +28,14 @@ pub(crate) fn on_struct_data(
 
     let into_tokens = into
         .iter()
-        .map(|attrs| create_into_impl_for_struct(input_ident_path, struct_data, &attrs.path))
+        .map(|attrs| {
+            create_into_impl_for_struct(
+                input_ident_path,
+                struct_data,
+                &attrs.path,
+                attrs.skip_after,
+            )
+        })
         .collect::<Vec<_>>();
     let from_tokens = from
         .iter()
@@ -36,7 +43,14 @@ pub(crate) fn on_struct_data(
         .collect::<Vec<_>>();
     let try_into_tokens = try_into
         .iter()
-        .map(|attrs| create_try_into_impl_for_struct(input_ident_path, struct_data, &attrs.path))
+        .map(|attrs| {
+            create_try_into_impl_for_struct(
+                input_ident_path,
+                struct_data,
+                &attrs.path,
+                attrs.skip_after,
+            )
+        })
         .collect::<Vec<_>>();
     let try_from_tokens = try_from
         .iter()

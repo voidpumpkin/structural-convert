@@ -40,24 +40,22 @@ fn variant_is_unit_targeted() {
     assert_eq!(Lhs::B, Rhs::B.into());
 }
 
-/// Case not implemented
-/// ```
-/// #[derive(Debug, PartialEq, StructuralConvert)]
-/// #[convert(into(path = "Lhs"))]
-/// enum Rhs {
-///     #[convert(into(for = "Lhs", skip_after = 2))]
-///     A(i8, u32, u8),
-/// }
-///
-/// #[derive(Debug, PartialEq)]
-/// enum Lhs {
-///     A(i32, u32),
-/// }
-///
-/// assert_eq!(Lhs::A(1, 2), Rhs::A(1, 2, 3).into());
-/// ```
 #[test]
-fn variant_is_unnamed() {}
+fn variant_is_unnamed() {
+    #[derive(Debug, PartialEq, StructuralConvert)]
+    #[convert(into(path = "Lhs"))]
+    enum Rhs {
+        #[convert(into(for = "Lhs", skip_after = 2))]
+        A(i8, u32, u8),
+    }
+
+    #[derive(Debug, PartialEq)]
+    enum Lhs {
+        A(i32, u32),
+    }
+
+    assert_eq!(Lhs::A(1, 2), Rhs::A(1, 2, 3).into());
+}
 
 /// Case not implemented
 /// ```

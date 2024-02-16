@@ -4,7 +4,11 @@ use quote::quote;
 use syn::FieldsUnnamed;
 
 /// item1, item2, item3 ...
-pub(crate) fn on_fields_unnamed(fields_unnamed: &FieldsUnnamed) -> Vec<TokenStream> {
+pub(crate) fn on_fields_unnamed(
+    fields_unnamed: &FieldsUnnamed,
+    skip_after: Option<usize>,
+) -> Vec<TokenStream> {
+    let take_len = skip_after.unwrap_or(fields_unnamed.unnamed.len());
     fields_unnamed
         .unnamed
         .iter()
@@ -13,5 +17,6 @@ pub(crate) fn on_fields_unnamed(fields_unnamed: &FieldsUnnamed) -> Vec<TokenStre
             let ident = format_ident!("item{i}");
             quote!(#ident)
         })
+        .take(take_len)
         .collect::<Vec<_>>()
 }

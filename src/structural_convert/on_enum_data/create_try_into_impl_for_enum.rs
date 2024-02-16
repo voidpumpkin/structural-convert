@@ -18,6 +18,7 @@ pub struct TryIntoEnumVariantAttributes {
     #[darling(rename = "for")]
     target: Option<Path>,
     rename: Option<Ident>,
+    skip_after: Option<usize>,
 }
 
 pub(crate) fn create_try_into_impl_for_enum(
@@ -25,7 +26,7 @@ pub(crate) fn create_try_into_impl_for_enum(
     enum_data: &DataEnum,
     into_path: &Path,
 ) -> TokenStream {
-    let match_branches = enum_data.variants.iter().filter_map(|variant| {
+    let match_branches = enum_data.variants.iter().map(|variant| {
         let variant_ident = variant.ident.clone();
         let from_variant_ident = &variant_ident;
         let into_attrs = EnumVariantAttributes::from_attributes(&variant.attrs).expect("Invalid field attributes").try_into;
@@ -36,6 +37,12 @@ pub(crate) fn create_try_into_impl_for_enum(
         if default_attrs.is_some() && has_targeted_attrs {
             panic!("For fields mixing attributes targeted and not targeted is not allowed");
         }
+
+        let skip_after = into_attrs.iter().find_map(|e| match &e.target {
+            Some(target) if target == into_path => e.skip_after,
+            Some(_) => None,
+            None => e.skip_after,
+        });
 
         let into_variant_ident: &Ident = into_attrs.iter().find_map(|e| match &e.target {
             Some(target) if target == into_path => e.rename.as_ref(),
@@ -53,7 +60,7 @@ pub(crate) fn create_try_into_impl_for_enum(
                 }
             }
             Fields::Unnamed(fields_unnamed) => {
-                let field_tokens = on_fields_unnamed(fields_unnamed);
+                let field_tokens = on_fields_unnamed(fields_unnamed,skip_after);
                 quote! {
                     #from_path(#(#field_tokens,)* ..) => #into_path(#(#field_tokens.try_into().map_err(|_| "Failed to convert field".to_string())?,)*)
                 }

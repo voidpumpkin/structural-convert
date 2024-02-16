@@ -7,7 +7,7 @@ pub fn concat_enum_with_variant(enum_path: &Path, variant_ident: &Ident) -> Path
         ident: variant_ident.clone(),
         arguments: Default::default(),
     };
-    let from_path = Path {
+    Path {
         leading_colon: None,
         segments: enum_path
             .clone()
@@ -15,6 +15,5 @@ pub fn concat_enum_with_variant(enum_path: &Path, variant_ident: &Ident) -> Path
             .into_iter()
             .chain(std::iter::once(segment))
             .collect(),
-    };
-    from_path
+    }
 }

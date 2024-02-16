@@ -1,22 +1,22 @@
-/// Case not implemented
-/// ```
-/// #[derive(Debug, PartialEq, StructuralConvert)]
-/// #[convert(into(for = "Lhs", skip_after = 2))]
-/// struct Rhs(i8, u32, u8);
-///
-/// #[derive(Debug, PartialEq)]
-/// struct Lhs(i32, u32);
-///
-/// assert_eq!(Lhs(1, 2), Rhs(1, 2, 3).into());
-/// ```
+use structural_convert::StructuralConvert;
+
 #[test]
-fn fields_unnamed() {}
+fn fields_unnamed() {
+    #[derive(Debug, PartialEq, StructuralConvert)]
+    #[convert(into(path = "Lhs", skip_after = 2))]
+    struct Rhs(i8, u32, u8);
+
+    #[derive(Debug, PartialEq)]
+    struct Lhs(i32, u32);
+
+    assert_eq!(Lhs(1, 2), Rhs(1, 2, 3).into());
+}
 
 /// Case not implemented
 /// Idea for api 1:
 /// ```
 /// #[derive(Debug, PartialEq, StructuralConvert)]
-/// #[convert(into(for = "Lhs",  skip("y", "e")))]
+/// #[convert(into(path = "Lhs",  skip("y", "e")))]
 /// struct Rhs {
 ///     z: i8,
 ///     x: u32,

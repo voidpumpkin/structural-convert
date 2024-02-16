@@ -1,16 +1,16 @@
-/// Case not implemented
-/// ```
-/// #[derive(Debug, PartialEq, StructuralConvert)]
-/// #[convert(try_into(for = "Lhs", skip_after = 2))]
-/// struct Rhs(i8, u32, u8);
-///
-/// #[derive(Debug, PartialEq)]
-/// struct Lhs(i32, u32);
-///
-/// assert_eq!(Lhs(1, 2), Rhs(1, 2, 3).try_into().unwrap());
-/// ```
+use structural_convert::StructuralConvert;
+
 #[test]
-fn fields_unnamed() {}
+fn fields_unnamed() {
+    #[derive(Debug, PartialEq, StructuralConvert)]
+    #[convert(try_into(path = "Lhs", skip_after = 2))]
+    struct Rhs(i8, u32, u8);
+
+    #[derive(Debug, PartialEq)]
+    struct Lhs(i32, u32);
+
+    assert_eq!(Lhs(1, 2), Rhs(1, 2, 3).try_into().unwrap());
+}
 
 /// Case not implemented
 /// Idea for api 1:
