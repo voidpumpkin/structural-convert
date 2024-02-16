@@ -1,11 +1,9 @@
-
 use crate::structural_convert::FieldNamedAttributes;
 use darling::FromAttributes;
 use darling::FromMeta;
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;
 use quote::quote;
-
 
 use syn::FieldsNamed;
 use syn::Path;
@@ -16,6 +14,7 @@ pub struct IntoFieldNamedAttributes {
     #[darling(rename = "for")]
     target: Option<Path>,
     rename: Option<Ident>,
+    skip: bool,
 }
 
 pub(crate) fn create_into_match_branch_for_fields_named(
@@ -26,7 +25,7 @@ pub(crate) fn create_into_match_branch_for_fields_named(
     let (from_field_ident, into_field_name): (Vec<_>, Vec<_>) = fields_named
         .named
         .iter()
-        .map(|f| {
+        .filter_map(|f| {
             let Some(ident) = f.ident.as_ref() else {
                 unreachable!()
             };
@@ -40,6 +39,15 @@ pub(crate) fn create_into_match_branch_for_fields_named(
                 panic!("For fields mixing attributes targeted and not targeted is not allowed");
             }
 
+            let skip = attrs.iter().any(|e| match &e.target {
+                Some(target) if target == into_path => e.skip,
+                Some(_) => false,
+                None => e.skip,
+            });
+            if skip {
+                return None;
+            }
+
             let into_field_ident: Ident = attrs
                 .iter()
                 .find_map(|e| match &e.target {
@@ -49,7 +57,7 @@ pub(crate) fn create_into_match_branch_for_fields_named(
                 })
                 .unwrap_or_else(|| ident.clone());
 
-            (ident, into_field_ident)
+            Some((ident, into_field_ident))
         })
         .unzip();
     quote! {
