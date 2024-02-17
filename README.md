@@ -14,10 +14,13 @@ Inspired by serde and struct-convert crates.
 - Inner fields type conversion using `.into()`/`.try_into()`
 - Rename enum variants and named fields
 - Skip enum variants and named fields
+- Fallback to default enum variant
+- Named fields conversion fallback to default
+- Enum not matched variants fallback to enum default
 
 ## Features Wishlist
 
-- Fallback to default per enum variant and named fields
+- Stop relying on panic and unwrap and use proper errors with spans
 
 ## Examples
 

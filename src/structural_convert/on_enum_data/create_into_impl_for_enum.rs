@@ -19,36 +19,53 @@ pub struct IntoEnumVariantAttributes {
     target: Option<Path>,
     rename: Option<Ident>,
     skip_after: Option<usize>,
+    skip: bool,
 }
 
 pub(crate) fn create_into_impl_for_enum(
     from_path: &Path,
     enum_data: &DataEnum,
     into_path: &Path,
+    default_for_fields: &[Ident],
+    default: bool,
 ) -> TokenStream {
+    let mut catch_all_branches = vec![];
+
+    if default {
+        catch_all_branches.push(quote! { _ => #into_path::default()})
+    }
+
     let match_branches = enum_data
         .variants
         .iter()
         .map(|variant| {
             let variant_ident = variant.ident.clone();
             let from_variant_ident = &variant_ident;
-            let into_attrs = EnumVariantAttributes::from_attributes(&variant.attrs)
+            let attrs = EnumVariantAttributes::from_attributes(&variant.attrs)
                 .expect("Invalid field attributes")
                 .into;
 
-            let default_attrs = into_attrs.iter().find(|e| e.target.is_none());
-            let has_targeted_attrs = into_attrs.iter().any(|e| e.target.is_some());
+            let default_attrs = attrs.iter().find(|e| e.target.is_none());
+            let has_targeted_attrs = attrs.iter().any(|e| e.target.is_some());
             if default_attrs.is_some() && has_targeted_attrs {
                 panic!("For fields mixing attributes targeted and not targeted is not allowed");
             }
+            let skip = attrs.iter().any(|e| match &e.target {
+                Some(target) if target == into_path => e.skip,
+                Some(_) => false,
+                None => e.skip,
+            });
+            if skip {
+                return None;
+            }
 
-            let skip_after = into_attrs.iter().find_map(|e| match &e.target {
+            let skip_after = attrs.iter().find_map(|e| match &e.target {
                 Some(target) if target == into_path => e.skip_after,
                 Some(_) => None,
                 None => e.skip_after,
             });
 
-            let into_variant_ident: &Ident = into_attrs
+            let into_variant_ident: &Ident = attrs
                 .iter()
                 .find_map(|e| match &e.target {
                     Some(target) if target == into_path => e.rename.as_ref(),
@@ -72,9 +89,12 @@ pub(crate) fn create_into_impl_for_enum(
                         #from_path(#(#field_tokens,)* ..) => #into_path(#(#field_tokens.into(),)*)
                     }
                 }
-                Fields::Named(fields_named) => {
-                    create_into_match_branch_for_fields_named(&from_path, fields_named, &into_path)
-                }
+                Fields::Named(fields_named) => create_into_match_branch_for_fields_named(
+                    &from_path,
+                    fields_named,
+                    &into_path,
+                    default_for_fields,
+                ),
             };
             Some(branch)
         })
@@ -84,7 +104,8 @@ pub(crate) fn create_into_impl_for_enum(
         impl From<#from_path> for #into_path {
             fn from(value: #from_path) -> Self {
                 match value {
-                    #(#match_branches,)*
+                    #(#match_branches),*
+                    #(#catch_all_branches),*
                 }
             }
         }

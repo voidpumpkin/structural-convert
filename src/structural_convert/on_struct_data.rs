@@ -26,6 +26,12 @@ pub(crate) fn on_struct_data(
         try_from,
     } = container_attributes;
 
+    let into_default = into.iter().any(|e| e.default);
+    let try_into_default = try_into.iter().any(|e| e.default);
+    if into_default || try_into_default {
+        panic!("default on the container is not supported for structs")
+    }
+
     let into_tokens = into
         .iter()
         .map(|attrs| {
@@ -34,6 +40,7 @@ pub(crate) fn on_struct_data(
                 struct_data,
                 &attrs.path,
                 attrs.skip_after,
+                &attrs.default_for_fields.0,
             )
         })
         .collect::<Vec<_>>();
@@ -49,6 +56,7 @@ pub(crate) fn on_struct_data(
                 struct_data,
                 &attrs.path,
                 attrs.skip_after,
+                &attrs.default_for_fields.0,
             )
         })
         .collect::<Vec<_>>();

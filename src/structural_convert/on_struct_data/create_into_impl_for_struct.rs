@@ -1,6 +1,7 @@
 use crate::structural_convert::on_fields_named::create_into_match_branch_for_fields_named::create_into_match_branch_for_fields_named;
 use crate::structural_convert::on_fields_unnamed::on_fields_unnamed;
 
+use proc_macro2::Ident;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::DataStruct;
@@ -12,6 +13,7 @@ pub(crate) fn create_into_impl_for_struct(
     struct_data: &DataStruct,
     into_path: &Path,
     skip_after: Option<usize>,
+    default_for_fields: &[Ident],
 ) -> TokenStream {
     let match_branches = match &struct_data.fields {
         Fields::Unit => {
@@ -25,9 +27,12 @@ pub(crate) fn create_into_impl_for_struct(
                 #from_path(#(#field_tokens,)* ..) => #into_path(#(#field_tokens.into(),)*)
             }
         }
-        Fields::Named(fields_named) => {
-            create_into_match_branch_for_fields_named(from_path, fields_named, into_path)
-        }
+        Fields::Named(fields_named) => create_into_match_branch_for_fields_named(
+            from_path,
+            fields_named,
+            into_path,
+            default_for_fields,
+        ),
     };
     quote!(
         #[automatically_derived]

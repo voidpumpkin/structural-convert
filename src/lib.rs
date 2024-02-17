@@ -2,6 +2,7 @@
 
 extern crate proc_macro;
 
+mod ident_as_literal_list;
 mod structural_convert;
 
 use syn::parse_macro_input;

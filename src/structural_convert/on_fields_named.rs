@@ -1,4 +1,5 @@
 pub mod create_from_match_branch_for_fields_named;
 pub mod create_into_match_branch_for_fields_named;
+pub mod create_match_branch_for_fields_named;
 pub mod create_try_from_match_branch_for_fields_named;
 pub mod create_try_into_match_branch_for_fields_named;

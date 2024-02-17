@@ -19,6 +19,7 @@ pub struct TryFromEnumVariantAttributes {
     target: Option<Path>,
     skip: bool,
     rename: Option<Ident>,
+    default: bool,
 }
 
 pub(crate) fn create_try_from_impl_for_enum(
@@ -26,17 +27,19 @@ pub(crate) fn create_try_from_impl_for_enum(
     enum_data: &DataEnum,
     into_path: &Path,
 ) -> TokenStream {
+    let mut catch_all_branches = vec![];
+    
     let match_branches = enum_data.variants.iter().filter_map(|variant| {
         let variant_ident = variant.ident.clone();
         let into_variant_ident = &variant_ident;
-        let from_attrs = EnumVariantAttributes::from_attributes(&variant.attrs).expect("Invalid field attributes").try_from;
+        let attrs = EnumVariantAttributes::from_attributes(&variant.attrs).expect("Invalid field attributes").try_from;
 
-        let default_attrs = from_attrs.iter().find(|e| e.target.is_none());
-        let has_targeted_attrs = from_attrs.iter().any(|e|e.target.is_some());
+        let default_attrs = attrs.iter().find(|e| e.target.is_none());
+        let has_targeted_attrs = attrs.iter().any(|e|e.target.is_some());
         if default_attrs.is_some() && has_targeted_attrs {
             panic!("For fields mixing attributes targeted and not targeted is not allowed");
         }
-        let skip = from_attrs.iter().any(|e| match &e.target {
+        let skip = attrs.iter().any(|e| match &e.target {
             Some(target) if target == from_path => e.skip,
             Some(_) => false,
             None => e.skip,
@@ -45,8 +48,13 @@ pub(crate) fn create_try_from_impl_for_enum(
             return None;
         }
 
+        let default = attrs.iter().any(|e| match &e.target {
+            Some(target) if target == from_path => e.default,
+            Some(_) => false,
+            None => e.default,
+        });
 
-        let from_variant_ident: &Ident = from_attrs.iter().find_map(|e| match &e.target {
+        let from_variant_ident: &Ident = attrs.iter().find_map(|e| match &e.target {
             Some(target) if target == from_path => e.rename.as_ref(),
             Some(_) => None,
             _ => e.rename.as_ref(),
@@ -56,10 +64,23 @@ pub(crate) fn create_try_from_impl_for_enum(
         let into_path = concat_enum_with_variant(into_path, into_variant_ident);
         
         let branch = match &variant.fields {
+            Fields::Unit if default => {
+                catch_all_branches.push(quote!(_ => #into_path.into()));
+                return None;
+            }
             Fields::Unit => {
                 quote! {
                     #from_path => #into_path.try_into().map_err(|_| "Failed to convert field".to_string())?
                 }
+            }
+            Fields::Unnamed(fields_unnamed) if default => {
+                let default_expr = fields_unnamed
+                    .unnamed
+                    .iter()
+                    .map(|_| quote!(Default::default()))
+                    .collect::<Vec<_>>();
+                catch_all_branches.push(quote!(_ => #into_path(#(#default_expr,)*)));
+                return None;
             }
             Fields::Unnamed(fields_unnamed) => {
                 let field_tokens = on_fields_unnamed(fields_unnamed,None);
@@ -80,7 +101,8 @@ pub(crate) fn create_try_from_impl_for_enum(
 
             fn try_from(value: #from_path) -> Result<Self, Self::Error> {
                 Ok(match value {
-                    #(#match_branches,)*
+                    #(#match_branches),*
+                    #(#catch_all_branches),*
                 })
             }
         }

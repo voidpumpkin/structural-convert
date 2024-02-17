@@ -8,12 +8,17 @@ use quote::quote;
 use syn::FieldsNamed;
 use syn::Path;
 
+use super::create_match_branch_for_fields_named::create_match_branch_for_fields_named;
+use super::create_match_branch_for_fields_named::FieldsNamedMatchBranchData;
+use super::create_match_branch_for_fields_named::IntoFromPair;
+
 #[derive(Debug, Default, Clone, FromMeta)]
 #[darling(default)]
 pub struct FromFieldNamedAttributes {
     #[darling(rename = "for")]
     target: Option<Path>,
     rename: Option<Ident>,
+    default: bool,
 }
 
 pub(crate) fn create_from_match_branch_for_fields_named(
@@ -21,7 +26,7 @@ pub(crate) fn create_from_match_branch_for_fields_named(
     fields_named: &FieldsNamed,
     into_path: &Path,
 ) -> TokenStream {
-    let (from_field_ident, into_field_name): (Vec<_>, Vec<_>) = fields_named
+    let match_branch_data = fields_named
         .named
         .iter()
         .map(|f| {
@@ -38,6 +43,12 @@ pub(crate) fn create_from_match_branch_for_fields_named(
                 panic!("For fields mixing attributes targeted and not targeted is not allowed");
             }
 
+            let default = attrs.iter().any(|e| match &e.target {
+                Some(target) if target == from_path => e.default,
+                Some(_) => false,
+                None => e.default,
+            });
+
             let from_field_ident: Ident = attrs
                 .iter()
                 .find_map(|e| match &e.target {
@@ -47,15 +58,23 @@ pub(crate) fn create_from_match_branch_for_fields_named(
                 })
                 .unwrap_or_else(|| ident.clone());
 
-            (from_field_ident, ident)
+            let into_from_pair = IntoFromPair {
+                into_field_name: ident.clone(),
+                from_field_ident: (!default).then_some(from_field_ident.clone()),
+            };
+
+            FieldsNamedMatchBranchData {
+                lhs_field_name: (!default).then_some(from_field_ident),
+                into_from_pair,
+            }
         })
-        .unzip();
-    quote! {
-        #from_path{
-            #(#from_field_ident,)*
-            ..
-        } => #into_path{
-            #(#into_field_name: #from_field_ident.into(),)*
-        }
-    }
+        .collect::<Vec<_>>();
+
+    create_match_branch_for_fields_named(
+        from_path,
+        |field_name| quote!(#field_name.into()),
+        into_path,
+        match_branch_data,
+        &[],
+    )
 }

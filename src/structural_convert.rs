@@ -16,6 +16,8 @@ use syn::Path;
 use syn::PathSegment;
 use syn::Result;
 
+use crate::ident_as_literal_list::IdentAsLiteralList;
+
 use self::on_enum_data::create_from_impl_for_enum::FromEnumVariantAttributes;
 use self::on_enum_data::create_into_impl_for_enum::IntoEnumVariantAttributes;
 use self::on_enum_data::create_try_from_impl_for_enum::TryFromEnumVariantAttributes;
@@ -57,12 +59,20 @@ pub struct TryFromContainerAttributes {
 pub struct IntoContainerAttributes {
     path: Path,
     skip_after: Option<usize>,
+    #[darling(default)]
+    default_for_fields: IdentAsLiteralList,
+    #[darling(default)]
+    default: bool,
 }
 
 #[derive(Debug, Clone, FromMeta)]
 pub struct TryIntoContainerAttributes {
     path: Path,
     skip_after: Option<usize>,
+    #[darling(default)]
+    default_for_fields: IdentAsLiteralList,
+    #[darling(default)]
+    default: bool,
 }
 #[derive(Debug, Default, Clone, FromAttributes)]
 #[darling(attributes(convert))]

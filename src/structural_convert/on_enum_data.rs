@@ -28,7 +28,15 @@ pub(crate) fn on_enum_data(
 
     let into_tokens = into
         .iter()
-        .map(|attrs| create_into_impl_for_enum(input_ident_path, enum_data, &attrs.path))
+        .map(|attrs| {
+            create_into_impl_for_enum(
+                input_ident_path,
+                enum_data,
+                &attrs.path,
+                &attrs.default_for_fields.0,
+                attrs.default,
+            )
+        })
         .collect::<Vec<TokenStream>>();
     let from_tokens = from
         .iter()
@@ -36,7 +44,15 @@ pub(crate) fn on_enum_data(
         .collect::<Vec<TokenStream>>();
     let try_into_tokens = try_into
         .iter()
-        .map(|attrs| create_try_into_impl_for_enum(input_ident_path, enum_data, &attrs.path))
+        .map(|attrs| {
+            create_try_into_impl_for_enum(
+                input_ident_path,
+                enum_data,
+                &attrs.path,
+                &attrs.default_for_fields.0,
+                attrs.default,
+            )
+        })
         .collect::<Vec<TokenStream>>();
     let try_from_tokens = try_from
         .iter()

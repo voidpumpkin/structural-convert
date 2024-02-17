@@ -8,6 +8,10 @@ use quote::quote;
 use syn::FieldsNamed;
 use syn::Path;
 
+use super::create_match_branch_for_fields_named::create_match_branch_for_fields_named;
+use super::create_match_branch_for_fields_named::FieldsNamedMatchBranchData;
+use super::create_match_branch_for_fields_named::IntoFromPair;
+
 #[derive(Debug, Default, Clone, FromMeta)]
 #[darling(default)]
 pub struct TryIntoFieldNamedAttributes {
@@ -20,10 +24,10 @@ pub struct TryIntoFieldNamedAttributes {
 pub(crate) fn create_try_into_match_branch_for_fields_named(
     from_path: &Path,
     fields_named: &FieldsNamed,
-
     into_path: &Path,
+    added_default_fields: &[Ident],
 ) -> TokenStream {
-    let (from_field_ident, into_field_name): (Vec<_>, Vec<_>) = fields_named
+    let match_branch_data = fields_named
         .named
         .iter()
         .filter_map(|f| {
@@ -58,15 +62,23 @@ pub(crate) fn create_try_into_match_branch_for_fields_named(
                 })
                 .unwrap_or_else(|| ident.clone());
 
-            Some((ident, into_field_ident))
+            let into_from_pair = IntoFromPair {
+                into_field_name: into_field_ident.clone(),
+                from_field_ident: Some(ident.clone()),
+            };
+
+            Some(FieldsNamedMatchBranchData {
+                lhs_field_name: Some(ident.clone()),
+                into_from_pair,
+            })
         })
-        .unzip();
-    quote! {
-        #from_path{
-            #(#from_field_ident,)*
-            ..
-        } => #into_path{
-            #(#into_field_name: #from_field_ident.try_into().map_err(|_| "Failed to convert field".to_string())?,)*
-        }
-    }
+        .collect::<Vec<_>>();
+
+    create_match_branch_for_fields_named(
+        from_path,
+        |field_name| quote!(#field_name.try_into().map_err(|_| "Failed to convert field".to_string())?),
+        into_path,
+        match_branch_data,
+        added_default_fields,
+    )
 }
