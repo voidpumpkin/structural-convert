@@ -17,6 +17,7 @@ Inspired by serde and struct-convert crates.
 - Fallback to default enum variant
 - Named fields conversion fallback to default
 - Enum not matched variants fallback to enum default
+- Struct named fields only - Middle man type conversion using `as` attribute
 
 ## Features Wishlist
 

@@ -1,6 +1,7 @@
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;
 use quote::quote;
+use quote::ToTokens;
 use syn::Path;
 
 /// Expected to become these tokens:
@@ -21,6 +22,8 @@ use syn::Path;
 pub struct FieldsNamedMatchBranchData {
     pub lhs_field_name: Option<Ident>,
     pub into_from_pair: IntoFromPair,
+    pub is_option: bool,
+    pub as_type: Option<Path>,
 }
 
 /// Expected to become these tokens:
@@ -34,12 +37,12 @@ pub struct FieldsNamedMatchBranchData {
 pub struct IntoFromPair {
     pub into_field_name: Ident,
     pub from_field_ident: Option<Ident>,
-    pub is_option: bool,
 }
 
 pub fn create_match_branch_for_fields_named(
     from_path: &Path,
-    into_expr: impl Fn(Ident) -> TokenStream,
+    wrapper: impl Fn(TokenStream, Path) -> TokenStream,
+    into_expr: impl Fn(TokenStream) -> TokenStream,
     into_path: &Path,
     mut match_branch_data: Vec<FieldsNamedMatchBranchData>,
     added_default_fields: &[Ident],
@@ -50,8 +53,9 @@ pub fn create_match_branch_for_fields_named(
             into_from_pair: IntoFromPair {
                 into_field_name: default_field_name.clone(),
                 from_field_ident: None,
-                is_option: false,
             },
+            is_option: false,
+            as_type: None,
         })
     }
 
@@ -68,9 +72,13 @@ pub fn create_match_branch_for_fields_named(
         let mut expr = quote!(Default::default());
 
         if let Some(field_name) = item.into_from_pair.from_field_ident {
-            expr = into_expr(field_name.clone());
+            if let Some(as_type) = item.as_type {
+                expr = into_expr(wrapper(field_name.to_token_stream(), as_type));
+            } else {
+                expr = into_expr(field_name.to_token_stream());
+            }
 
-            if item.into_from_pair.is_option {
+            if item.is_option {
                 expr = quote!(
                     match #field_name {
                         None => None,

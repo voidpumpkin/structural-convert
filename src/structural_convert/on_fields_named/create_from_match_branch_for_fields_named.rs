@@ -20,6 +20,8 @@ pub struct FromFieldNamedAttributes {
     target: Option<Path>,
     rename: Option<Ident>,
     default: bool,
+    #[darling(rename = "as")]
+    as_type: Option<Path>,
 }
 
 pub(crate) fn create_from_match_branch_for_fields_named(
@@ -52,6 +54,12 @@ pub(crate) fn create_from_match_branch_for_fields_named(
                 None => e.default,
             });
 
+            let as_type = attrs.iter().find_map(|e| match &e.target {
+                Some(target) if target == from_path => e.as_type.clone(),
+                Some(_) => None,
+                None => e.as_type.clone(),
+            });
+
             let from_field_ident: Ident = attrs
                 .iter()
                 .find_map(|e| match &e.target {
@@ -64,18 +72,20 @@ pub(crate) fn create_from_match_branch_for_fields_named(
             let into_from_pair = IntoFromPair {
                 into_field_name: ident.clone(),
                 from_field_ident: (!default).then_some(from_field_ident.clone()),
-                is_option,
             };
 
             FieldsNamedMatchBranchData {
                 lhs_field_name: (!default).then_some(from_field_ident),
                 into_from_pair,
+                is_option,
+                as_type,
             }
         })
         .collect::<Vec<_>>();
 
     create_match_branch_for_fields_named(
         from_path,
+        |field_name, as_type| quote!(#as_type::from(#field_name)),
         |field_name| quote!(#field_name.into()),
         into_path,
         match_branch_data,
