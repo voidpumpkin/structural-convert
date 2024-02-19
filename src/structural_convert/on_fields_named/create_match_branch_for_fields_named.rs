@@ -34,6 +34,7 @@ pub struct FieldsNamedMatchBranchData {
 pub struct IntoFromPair {
     pub into_field_name: Ident,
     pub from_field_ident: Option<Ident>,
+    pub is_option: bool,
 }
 
 pub fn create_match_branch_for_fields_named(
@@ -49,6 +50,7 @@ pub fn create_match_branch_for_fields_named(
             into_from_pair: IntoFromPair {
                 into_field_name: default_field_name.clone(),
                 from_field_ident: None,
+                is_option: false,
             },
         })
     }
@@ -63,11 +65,22 @@ pub fn create_match_branch_for_fields_named(
 
         into_field_name.push(item.into_from_pair.into_field_name);
 
+        let mut expr = quote!(Default::default());
+
         if let Some(field_name) = item.into_from_pair.from_field_ident {
-            from_field_expr.push(into_expr(field_name));
-        } else {
-            from_field_expr.push(quote!(Default::default()));
+            expr = into_expr(field_name.clone());
+
+            if item.into_from_pair.is_option {
+                expr = quote!(
+                    match #field_name {
+                        None => None,
+                        Some(#field_name) => Some(#expr),
+                    }
+                );
+            }
         }
+
+        from_field_expr.push(expr);
     }
 
     quote! {

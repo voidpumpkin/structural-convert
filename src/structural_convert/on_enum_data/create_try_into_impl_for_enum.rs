@@ -1,7 +1,7 @@
 use crate::structural_convert::on_enum_data::utils::concat_enum_with_variant;
 use crate::structural_convert::on_fields_named::create_try_into_match_branch_for_fields_named::create_try_into_match_branch_for_fields_named;
 
-use crate::structural_convert::on_fields_unnamed::on_fields_unnamed;
+use crate::structural_convert::on_fields_unnamed::create_match_branch_for_fields_unnamed;
 use crate::structural_convert::EnumVariantAttributes;
 use darling::FromAttributes;
 use darling::FromMeta;
@@ -79,10 +79,14 @@ pub(crate) fn create_try_into_impl_for_enum(
                 }
             }
             Fields::Unnamed(fields_unnamed) => {
-                let field_tokens = on_fields_unnamed(fields_unnamed,skip_after);
-                quote! {
-                    #from_path(#(#field_tokens,)* ..) => #into_path(#(#field_tokens.try_into().map_err(|_| "Failed to convert field".to_string())?,)*)
-                }
+                create_match_branch_for_fields_unnamed(
+                    &from_path,
+                    |field|quote!(#field.try_into().map_err(|_| "Failed to convert field".to_string())?),
+                    &into_path,
+                    
+                    
+                    
+                    fields_unnamed,skip_after)
             }
             Fields::Named(fields_named) => {
                 create_try_into_match_branch_for_fields_named(&from_path, fields_named, &into_path, default_for_fields)
