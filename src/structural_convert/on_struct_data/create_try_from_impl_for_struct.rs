@@ -19,9 +19,9 @@ pub(crate) fn create_try_from_impl_for_struct(
             }
         }
         Fields::Unnamed(fields_unnamed) => create_match_branch_for_fields_unnamed(
-            &from_path,
+            from_path,
             |field| quote! {#field.try_into().map_err(|_| "Failed to convert field".to_string())?},
-            &into_path,
+            into_path,
             fields_unnamed,
             None,
         ),

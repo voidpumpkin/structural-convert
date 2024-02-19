@@ -10,15 +10,13 @@ fn variant_is_unit_default() {
     }
 
     #[derive(Debug, PartialEq)]
+    #[derive(Default)]
     enum Lhs {
+        #[default]
         X,
     }
 
-    impl Default for Lhs {
-        fn default() -> Self {
-            Lhs::X
-        }
-    }
+    
 
     assert_eq!(Lhs::default(), Rhs::A.into());
 }
