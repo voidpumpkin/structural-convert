@@ -28,7 +28,7 @@ pub(crate) fn create_into_impl_for_enum(
     into_path: &Path,
     default_for_fields: &[Ident],
     default: bool,
-) -> TokenStream {
+) -> darling::Result<TokenStream> {
     let mut catch_all_branches = vec![];
 
     if default {
@@ -38,17 +38,21 @@ pub(crate) fn create_into_impl_for_enum(
     let match_branches = enum_data
         .variants
         .iter()
-        .map(|variant| {
+        .filter_map(|variant| {
             let variant_ident = variant.ident.clone();
             let from_variant_ident = &variant_ident;
-            let attrs = EnumVariantAttributes::from_attributes(&variant.attrs)
-                .expect("Invalid field attributes")
-                .into;
+            let attrs = match EnumVariantAttributes::from_attributes(&variant.attrs) {
+                Ok(ok) => ok,
+                Err(err) => return Some(Err(err)),
+            }
+            .into;
 
             let default_attrs = attrs.iter().find(|e| e.target.is_none());
             let has_targeted_attrs = attrs.iter().any(|e| e.target.is_some());
             if default_attrs.is_some() && has_targeted_attrs {
-                panic!("For fields mixing attributes targeted and not targeted is not allowed");
+                return Some(Err(darling::Error::custom(
+                    "For fields mixing attributes targeted and not targeted is not allowed",
+                )));
             }
             let skip = attrs.iter().any(|e| match &e.target {
                 Some(target) if target == into_path => e.skip,
@@ -90,17 +94,20 @@ pub(crate) fn create_into_impl_for_enum(
                     fields_unnamed,
                     skip_after,
                 ),
-                Fields::Named(fields_named) => create_into_match_branch_for_fields_named(
+                Fields::Named(fields_named) => match create_into_match_branch_for_fields_named(
                     &from_path,
                     fields_named,
                     &into_path,
                     default_for_fields,
-                ),
+                ) {
+                    Ok(ok) => ok,
+                    Err(err) => return Some(Err(err)),
+                },
             };
-            Some(branch)
+            Some(Ok(branch))
         })
-        .collect::<Vec<_>>();
-    quote!(
+        .collect::<darling::Result<Vec<_>>>()?;
+    Ok(quote!(
         #[automatically_derived]
         impl From<#from_path> for #into_path {
             fn from(value: #from_path) -> Self {
@@ -110,5 +117,5 @@ pub(crate) fn create_into_impl_for_enum(
                 }
             }
         }
-    )
+    ))
 }

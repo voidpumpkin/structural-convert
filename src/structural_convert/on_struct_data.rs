@@ -18,7 +18,7 @@ pub(crate) fn on_struct_data(
     input_ident_path: &Path,
     struct_data: &DataStruct,
     container_attributes: &ContainerAttributes,
-) -> TokenStream {
+) -> darling::Result<TokenStream> {
     let ContainerAttributes {
         into,
         from,
@@ -29,7 +29,9 @@ pub(crate) fn on_struct_data(
     let into_default = into.iter().any(|e| e.default);
     let try_into_default = try_into.iter().any(|e| e.default);
     if into_default || try_into_default {
-        panic!("default on the container is not supported for structs")
+        return Err(darling::Error::custom(
+            "default on the container is not supported for structs",
+        ));
     }
 
     let into_tokens = into
@@ -43,11 +45,11 @@ pub(crate) fn on_struct_data(
                 &attrs.default_for_fields.0,
             )
         })
-        .collect::<Vec<_>>();
+        .collect::<darling::Result<Vec<_>>>()?;
     let from_tokens = from
         .iter()
         .map(|attrs| create_from_impl_for_struct(&attrs.path, struct_data, input_ident_path))
-        .collect::<Vec<_>>();
+        .collect::<darling::Result<Vec<_>>>()?;
     let try_into_tokens = try_into
         .iter()
         .map(|attrs| {
@@ -59,13 +61,13 @@ pub(crate) fn on_struct_data(
                 &attrs.default_for_fields.0,
             )
         })
-        .collect::<Vec<_>>();
+        .collect::<darling::Result<Vec<_>>>()?;
     let try_from_tokens = try_from
         .iter()
         .map(|attrs| create_try_from_impl_for_struct(&attrs.path, struct_data, input_ident_path))
-        .collect::<Vec<_>>();
+        .collect::<darling::Result<Vec<_>>>()?;
 
-    quote!(
+    Ok(quote!(
         #(
             #into_tokens
         )*
@@ -78,5 +80,5 @@ pub(crate) fn on_struct_data(
         #(
             #try_from_tokens
         )*
-    )
+    ))
 }

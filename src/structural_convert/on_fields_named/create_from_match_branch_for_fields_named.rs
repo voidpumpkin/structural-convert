@@ -28,7 +28,7 @@ pub(crate) fn create_from_match_branch_for_fields_named(
     from_path: &Path,
     fields_named: &FieldsNamed,
     into_path: &Path,
-) -> TokenStream {
+) -> darling::Result<TokenStream> {
     let match_branch_data = fields_named
         .named
         .iter()
@@ -38,14 +38,14 @@ pub(crate) fn create_from_match_branch_for_fields_named(
             };
             let is_option = is_option(&f.ty);
 
-            let attrs = FieldNamedAttributes::from_attributes(&f.attrs)
-                .expect("Invalid field attributes")
-                .from;
+            let attrs = FieldNamedAttributes::from_attributes(&f.attrs)?.from;
 
             let default_attrs = attrs.iter().find(|e| e.target.is_none());
             let has_targeted_attrs = attrs.iter().any(|e| e.target.is_some());
             if default_attrs.is_some() && has_targeted_attrs {
-                panic!("For fields mixing attributes targeted and not targeted is not allowed");
+                return Err(darling::Error::custom(
+                    "For fields mixing attributes targeted and not targeted is not allowed",
+                ));
             }
 
             let default = attrs.iter().any(|e| match &e.target {
@@ -74,21 +74,21 @@ pub(crate) fn create_from_match_branch_for_fields_named(
                 from_field_ident: (!default).then_some(from_field_ident.clone()),
             };
 
-            FieldsNamedMatchBranchData {
+            Ok(FieldsNamedMatchBranchData {
                 lhs_field_name: (!default).then_some(from_field_ident),
                 into_from_pair,
                 is_option,
                 as_type,
-            }
+            })
         })
-        .collect::<Vec<_>>();
+        .collect::<darling::Result<Vec<_>>>()?;
 
-    create_match_branch_for_fields_named(
+    Ok(create_match_branch_for_fields_named(
         from_path,
         |field_name, as_type| quote!(#as_type::from(#field_name)),
         |field_name| quote!(#field_name.into()),
         into_path,
         match_branch_data,
         &[],
-    )
+    ))
 }

@@ -14,7 +14,6 @@ use syn::Data;
 use syn::DeriveInput;
 use syn::Path;
 use syn::PathSegment;
-use syn::Result;
 
 use crate::ident_as_literal_list::IdentAsLiteralList;
 
@@ -101,7 +100,7 @@ pub struct FieldNamedAttributes {
     try_into: Vec<TryIntoFieldNamedAttributes>,
 }
 
-pub fn structural_convert_impl(input: DeriveInput) -> Result<TokenStream> {
+pub fn structural_convert_impl(input: DeriveInput) -> darling::Result<TokenStream> {
     let container_attributes = ContainerAttributes::from_derive_input(&input)?;
 
     let DeriveInput {
@@ -125,13 +124,11 @@ pub fn structural_convert_impl(input: DeriveInput) -> Result<TokenStream> {
         segments: input_ident_path_segments,
     };
 
-    let tokens = match data {
+    match data {
         Data::Struct(struct_data) => {
             on_struct_data(&input_ident_path, &struct_data, &container_attributes)
         }
         Data::Enum(enum_data) => on_enum_data(&input_ident_path, &enum_data, &container_attributes),
-        Data::Union(_union_data) => unimplemented!("Unions are not implemented"),
-    };
-
-    Ok(tokens)
+        Data::Union(_union_data) => Err(darling::Error::custom("Unions are not implemented")),
+    }
 }

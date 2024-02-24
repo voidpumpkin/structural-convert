@@ -26,18 +26,21 @@ pub(crate) fn create_try_from_impl_for_enum(
     from_path: &Path,
     enum_data: &DataEnum,
     into_path: &Path,
-) -> TokenStream {
+) -> darling::Result<TokenStream> {
     let mut catch_all_branches = vec![];
     
     let match_branches = enum_data.variants.iter().filter_map(|variant| {
         let variant_ident = variant.ident.clone();
         let into_variant_ident = &variant_ident;
-        let attrs = EnumVariantAttributes::from_attributes(&variant.attrs).expect("Invalid field attributes").try_from;
+        let attrs = match EnumVariantAttributes::from_attributes(&variant.attrs) {
+            Ok(ok) => ok,
+            Err(err) => return Some(Err(err)),
+        }.try_from;
 
         let default_attrs = attrs.iter().find(|e| e.target.is_none());
         let has_targeted_attrs = attrs.iter().any(|e|e.target.is_some());
         if default_attrs.is_some() && has_targeted_attrs {
-            panic!("For fields mixing attributes targeted and not targeted is not allowed");
+            return Some(Err(darling::Error::custom("For fields mixing attributes targeted and not targeted is not allowed")));
         }
         let skip = attrs.iter().any(|e| match &e.target {
             Some(target) if target == from_path => e.skip,
@@ -93,12 +96,15 @@ pub(crate) fn create_try_from_impl_for_enum(
                
             }
             Fields::Named(fields_named) => {
-                create_try_from_match_branch_for_fields_named(&from_path, fields_named, &into_path)
+                match create_try_from_match_branch_for_fields_named(&from_path, fields_named, &into_path){
+                    Ok(ok) => ok,
+                    Err(err) => return Some(Err(err)),
+                }
             }
         };
-        Some(branch)
-    }).collect::<Vec<_>>();
-    quote!(
+        Some(Ok(branch))
+    }).collect::<darling::Result<Vec<_>>>()?;
+    Ok(quote!(
         #[automatically_derived]
         impl TryFrom<#from_path> for #into_path {
             type Error = String;
@@ -110,5 +116,5 @@ pub(crate) fn create_try_from_impl_for_enum(
                 })
             }
         }
-    )
+    ))
 }

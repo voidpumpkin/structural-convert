@@ -14,7 +14,7 @@ pub(crate) fn create_try_into_impl_for_struct(
     into_path: &Path,
     skip_after: Option<usize>,
     default_for_fields: &[Ident],
-) -> TokenStream {
+) -> darling::Result<TokenStream> {
     let match_branches = match &struct_data.fields {
         Fields::Unit => {
             quote! {
@@ -33,9 +33,9 @@ pub(crate) fn create_try_into_impl_for_struct(
             fields_named,
             into_path,
             default_for_fields,
-        ),
+        )?,
     };
-    quote!(
+    Ok(quote!(
         #[automatically_derived]
         impl TryFrom<#from_path> for #into_path {
             type Error = String;
@@ -46,5 +46,5 @@ pub(crate) fn create_try_into_impl_for_struct(
                 })
             }
         }
-    )
+    ))
 }

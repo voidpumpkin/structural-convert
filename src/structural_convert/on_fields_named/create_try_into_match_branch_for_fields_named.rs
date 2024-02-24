@@ -29,7 +29,7 @@ pub(crate) fn create_try_into_match_branch_for_fields_named(
     fields_named: &FieldsNamed,
     into_path: &Path,
     added_default_fields: &[Ident],
-) -> TokenStream {
+) -> darling::Result<TokenStream> {
     let match_branch_data = fields_named
         .named
         .iter()
@@ -39,14 +39,18 @@ pub(crate) fn create_try_into_match_branch_for_fields_named(
             };
             let is_option = is_option(&f.ty);
 
-            let attrs = FieldNamedAttributes::from_attributes(&f.attrs)
-                .expect("Invalid field attributes")
-                .try_into;
+            let attrs = match FieldNamedAttributes::from_attributes(&f.attrs) {
+                Ok(ok) => ok,
+                Err(err) => return Some(Err(err)),
+            }
+            .try_into;
 
             let default_attrs = attrs.iter().find(|e| e.target.is_none());
             let has_targeted_attrs = attrs.iter().any(|e| e.target.is_some());
             if default_attrs.is_some() && has_targeted_attrs {
-                panic!("For fields mixing attributes targeted and not targeted is not allowed");
+                return Some(Err(darling::Error::custom(
+                    "For fields mixing attributes targeted and not targeted is not allowed",
+                )));
             }
 
             let skip = attrs.iter().any(|e| match &e.target {
@@ -78,16 +82,16 @@ pub(crate) fn create_try_into_match_branch_for_fields_named(
                 from_field_ident: Some(ident.clone()),
             };
 
-            Some(FieldsNamedMatchBranchData {
+            Some(Ok(FieldsNamedMatchBranchData {
                 lhs_field_name: Some(ident.clone()),
                 into_from_pair,
                 is_option,
                 as_type,
-            })
+            }))
         })
-        .collect::<Vec<_>>();
+        .collect::<darling::Result<Vec<_>>>()?;
 
-    create_match_branch_for_fields_named(
+    Ok(create_match_branch_for_fields_named(
         from_path,
         |field_name, as_type| {
             quote!(
@@ -98,5 +102,5 @@ pub(crate) fn create_try_into_match_branch_for_fields_named(
         into_path,
         match_branch_data,
         added_default_fields,
-    )
+    ))
 }

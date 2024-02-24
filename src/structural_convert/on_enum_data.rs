@@ -18,7 +18,7 @@ pub(crate) fn on_enum_data(
     input_ident_path: &Path,
     enum_data: &DataEnum,
     container_attributes: &ContainerAttributes,
-) -> TokenStream {
+) -> darling::Result<TokenStream> {
     let ContainerAttributes {
         into,
         from,
@@ -37,11 +37,11 @@ pub(crate) fn on_enum_data(
                 attrs.default,
             )
         })
-        .collect::<Vec<TokenStream>>();
+        .collect::<darling::Result<Vec<TokenStream>>>()?;
     let from_tokens = from
         .iter()
         .map(|attrs| create_from_impl_for_enum(&attrs.path, enum_data, input_ident_path))
-        .collect::<Vec<TokenStream>>();
+        .collect::<darling::Result<Vec<TokenStream>>>()?;
     let try_into_tokens = try_into
         .iter()
         .map(|attrs| {
@@ -53,13 +53,13 @@ pub(crate) fn on_enum_data(
                 attrs.default,
             )
         })
-        .collect::<Vec<TokenStream>>();
+        .collect::<darling::Result<Vec<TokenStream>>>()?;
     let try_from_tokens = try_from
         .iter()
         .map(|attrs| create_try_from_impl_for_enum(&attrs.path, enum_data, input_ident_path))
-        .collect::<Vec<TokenStream>>();
+        .collect::<darling::Result<Vec<TokenStream>>>()?;
 
-    quote!(
+    Ok(quote!(
         #(
             #into_tokens
         )*
@@ -72,5 +72,5 @@ pub(crate) fn on_enum_data(
         #(
             #try_from_tokens
         )*
-    )
+    ))
 }

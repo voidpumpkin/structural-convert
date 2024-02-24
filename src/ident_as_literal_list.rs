@@ -33,7 +33,12 @@ impl FromMeta for IdentAsLiteralList {
                         Lit::Char(inner_lit) => {
                             format_ident!("{}", inner_lit.value().to_string())
                         }
-                        _ => panic!("Literal not supported: {}", lit.to_token_stream()),
+                        _ => {
+                            return Err(darling::Error::custom(format!(
+                                "Literal not supported: {}",
+                                lit.to_token_stream()
+                            )))
+                        }
                     };
                     idents.push(ident);
                 }

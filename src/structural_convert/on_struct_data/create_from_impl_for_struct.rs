@@ -11,7 +11,7 @@ pub(crate) fn create_from_impl_for_struct(
     from_path: &Path,
     struct_data: &DataStruct,
     into_path: &Path,
-) -> TokenStream {
+) -> darling::Result<TokenStream> {
     let match_branches = match &struct_data.fields {
         Fields::Unit => {
             quote! {
@@ -26,10 +26,10 @@ pub(crate) fn create_from_impl_for_struct(
             None,
         ),
         Fields::Named(fields_named) => {
-            create_from_match_branch_for_fields_named(from_path, fields_named, into_path)
+            create_from_match_branch_for_fields_named(from_path, fields_named, into_path)?
         }
     };
-    quote!(
+    Ok(quote!(
         #[automatically_derived]
         impl From<#from_path> for #into_path {
             fn from(value: #from_path) -> Self {
@@ -38,5 +38,5 @@ pub(crate) fn create_from_impl_for_struct(
                 }
             }
         }
-    )
+    ))
 }
