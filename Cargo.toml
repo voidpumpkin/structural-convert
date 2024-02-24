@@ -2,11 +2,28 @@
 authors = ["voidpumpkin <32368314+voidpumpkin@users.noreply.github.com>"]
 edition = "2021"
 name = "structural-convert"
-description = "Derive conversion traits when items are structurally similar"
+description = "Derive conversion traits (From, Into, TryFrom, TryInto) when fields are structurally similar in enums or structs"
 version = "0.8.2"
 license = "MIT"
 repository = "https://github.com/voidpumpkin/structural-convert/"
 readme = "README.md"
+keywords = [
+    "mapping",
+    "mapper",
+    "map",
+    "from",
+    "convert",
+    "try_from",
+    "try_into",
+    "object_to_object",
+    "struct_to_struct",
+    "enum_to_enum",
+    "derive",
+    "derive_from",
+    "derive_try_from",
+    "derive_into",
+    "derive_try_into",
+]
 
 [lib]
 proc-macro = true
