@@ -51,8 +51,9 @@ pub(crate) fn create_into_impl_for_enum(
             let has_targeted_attrs = attrs.iter().any(|e| e.target.is_some());
             if default_attrs.is_some() && has_targeted_attrs {
                 return Some(Err(darling::Error::custom(
-                    "For fields mixing attributes targeted and not targeted is not allowed",
-                )));
+                    "Mixing attributes with 'for' path and no path is not allowed",
+                )
+                .with_span(variant)));
             }
             let skip = attrs.iter().any(|e| match &e.target {
                 Some(target) if target == into_path => e.skip,

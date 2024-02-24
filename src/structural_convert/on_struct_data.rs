@@ -4,6 +4,7 @@ use create_try_from_impl_for_struct::create_try_from_impl_for_struct;
 use create_try_into_impl_for_struct::create_try_into_impl_for_struct;
 use proc_macro2::TokenStream;
 use quote::quote;
+use syn::spanned::Spanned;
 use syn::DataStruct;
 use syn::Path;
 
@@ -18,6 +19,7 @@ pub(crate) fn on_struct_data(
     input_ident_path: &Path,
     struct_data: &DataStruct,
     container_attributes: &ContainerAttributes,
+    span: &impl Spanned,
 ) -> darling::Result<TokenStream> {
     let ContainerAttributes {
         into,
@@ -29,9 +31,7 @@ pub(crate) fn on_struct_data(
     let into_default = into.iter().any(|e| e.default);
     let try_into_default = try_into.iter().any(|e| e.default);
     if into_default || try_into_default {
-        return Err(darling::Error::custom(
-            "default on the container is not supported for structs",
-        ));
+        return Err(darling::Error::custom("default on structs is not supported").with_span(span));
     }
 
     let into_tokens = into

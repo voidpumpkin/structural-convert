@@ -125,10 +125,15 @@ pub fn structural_convert_impl(input: DeriveInput) -> darling::Result<TokenStrea
     };
 
     match data {
-        Data::Struct(struct_data) => {
-            on_struct_data(&input_ident_path, &struct_data, &container_attributes)
-        }
+        Data::Struct(struct_data) => on_struct_data(
+            &input_ident_path,
+            &struct_data,
+            &container_attributes,
+            &input,
+        ),
         Data::Enum(enum_data) => on_enum_data(&input_ident_path, &enum_data, &container_attributes),
-        Data::Union(_union_data) => Err(darling::Error::custom("Unions are not implemented")),
+        Data::Union(_union_data) => {
+            Err(darling::Error::custom("Unions are not implemented").with_span(&input))
+        }
     }
 }

@@ -14,7 +14,9 @@ impl FromMeta for IdentAsLiteralList {
         for item in items {
             match item {
                 NestedMeta::Meta(_) => {
-                    return Err(darling::Error::custom("Expected list of literals here"));
+                    return Err(
+                        darling::Error::custom("Expected list of literals here").with_span(item)
+                    );
                 }
                 NestedMeta::Lit(lit) => {
                     let ident = match lit {
@@ -37,7 +39,8 @@ impl FromMeta for IdentAsLiteralList {
                             return Err(darling::Error::custom(format!(
                                 "Literal not supported: {}",
                                 lit.to_token_stream()
-                            )))
+                            ))
+                            .with_span(item))
                         }
                     };
                     idents.push(ident);
