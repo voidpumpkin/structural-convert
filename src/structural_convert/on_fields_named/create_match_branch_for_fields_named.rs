@@ -72,20 +72,29 @@ pub fn create_match_branch_for_fields_named(
         let mut expr = quote!(Default::default());
 
         if let Some(field_name) = item.into_from_pair.from_field_ident {
-            if let Some(as_type) = item.as_type {
-                expr = into_expr(wrapper(field_name.to_token_stream(), as_type));
-            } else {
-                expr = into_expr(field_name.to_token_stream());
-            }
+            expr = into_expr(field_name.to_token_stream());
 
-            if item.is_option {
-                expr = quote!(
-                    match #field_name {
-                        None => None,
-                        Some(#field_name) => Some(#expr),
-                    }
-                );
-            }
+            expr = match (item.is_option, item.as_type) {
+                (false, None) => expr,
+                (false, Some(as_type)) => into_expr(wrapper(field_name.to_token_stream(), as_type)),
+                (true, None) => {
+                    quote!(
+                        match #field_name {
+                            None => None,
+                            Some(#field_name) => Some(#expr),
+                        }
+                    )
+                }
+                (true, Some(as_type)) => {
+                    let match_expr = wrapper(field_name.to_token_stream(), as_type);
+                    quote!(
+                        match #match_expr {
+                            None => None,
+                            Some(#field_name) => Some(#expr),
+                        }
+                    )
+                }
+            };
         }
 
         from_field_expr.push(expr);

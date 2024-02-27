@@ -1,3 +1,4 @@
+use crate::structural_convert::is_option::is_path_option;
 use crate::structural_convert::FieldNamedAttributes;
 use darling::FromAttributes;
 use darling::FromMeta;
@@ -11,7 +12,7 @@ use syn::Path;
 use super::create_match_branch_for_fields_named::create_match_branch_for_fields_named;
 use super::create_match_branch_for_fields_named::FieldsNamedMatchBranchData;
 use super::create_match_branch_for_fields_named::IntoFromPair;
-use crate::structural_convert::is_option::is_option;
+use crate::structural_convert::is_option::is_type_option;
 
 #[derive(Debug, Default, Clone, FromMeta)]
 #[darling(default)]
@@ -38,7 +39,7 @@ pub(crate) fn create_into_match_branch_for_fields_named(
             let Some(ident) = f.ident.as_ref() else {
                 unreachable!()
             };
-            let is_option = is_option(&f.ty);
+            let mut is_option = is_type_option(&f.ty);
 
             let attrs = match FieldNamedAttributes::from_attributes(&f.attrs) {
                 Ok(ok) => ok,
@@ -69,6 +70,10 @@ pub(crate) fn create_into_match_branch_for_fields_named(
                 Some(_) => None,
                 None => e.as_type.clone(),
             });
+
+            if let Some(as_type) = &as_type {
+                is_option = is_path_option(as_type);
+            }
 
             let into_field_ident: Ident = attrs
                 .iter()

@@ -21,7 +21,7 @@ Inspired by serde and struct-convert crates.
 
 ## Features Wishlist
 
-- Stop relying on panic and unwrap and use proper errors with spans
+- Implement attributes for unnamed fields (default, skip, as)
 
 ## Examples
 

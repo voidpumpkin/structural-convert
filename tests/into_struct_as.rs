@@ -1,7 +1,7 @@
 use structural_convert::StructuralConvert;
 
 #[test]
-fn fields_named() {
+fn fields_named_i32() {
     #[derive(Debug, PartialEq)]
     pub struct Rhs {
         pub r#type: i32,
@@ -41,5 +41,36 @@ fn fields_named() {
             r#type: LhsEnum::Home
         }
         .into(),
+    );
+}
+
+#[test]
+fn fields_named_option() {
+    #[derive(Debug, PartialEq)]
+    struct Q(u32);
+    #[derive(Debug, PartialEq, StructuralConvert)]
+    #[convert(from(path = "Q"))]
+    struct W(u32);
+
+    #[derive(Debug, PartialEq, StructuralConvert)]
+    #[convert(into(path = "Lhs"))]
+    struct Rhs {
+        z: i8,
+        #[convert(into(for = "Lhs", as = "Option::<Q>"))]
+        x: Q,
+    }
+
+    #[derive(Debug, PartialEq)]
+    struct Lhs {
+        z: i32,
+        x: Option<W>,
+    }
+
+    assert_eq!(
+        Lhs {
+            z: 1,
+            x: Some(W(2))
+        },
+        Rhs { z: 1, x: Q(2) }.into()
     );
 }

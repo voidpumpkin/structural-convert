@@ -5,7 +5,7 @@ use quote::quote;
 use syn::FieldsUnnamed;
 use syn::Path;
 
-use crate::structural_convert::is_option::is_option;
+use crate::structural_convert::is_option::is_type_option;
 
 /// item1, item2, item3 ...
 pub(crate) fn create_match_branch_for_fields_unnamed(
@@ -24,7 +24,7 @@ pub(crate) fn create_match_branch_for_fields_unnamed(
             let ident = format_ident!("item{i}");
             let mut into_expr = into_expr(ident.clone());
 
-            if is_option(&field.ty) {
+            if is_type_option(&field.ty) {
                 into_expr = quote!(
                     match #ident {
                         None => None,
