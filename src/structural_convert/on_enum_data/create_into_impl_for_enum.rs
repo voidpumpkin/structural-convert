@@ -88,13 +88,16 @@ pub(crate) fn create_into_impl_for_enum(
                         #from_path => #into_path.into()
                     }
                 }
-                Fields::Unnamed(fields_unnamed) => create_match_branch_for_fields_unnamed(
+                Fields::Unnamed(fields_unnamed) => match create_match_branch_for_fields_unnamed(
                     &from_path,
                     |field| quote!(#field.into()),
                     &into_path,
                     fields_unnamed,
                     skip_after,
-                ),
+                ) {
+                    Ok(ok) => ok,
+                    Err(err) => return Some(Err(err)),
+                },
                 Fields::Named(fields_named) => match create_into_match_branch_for_fields_named(
                     &from_path,
                     fields_named,

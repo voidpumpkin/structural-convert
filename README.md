@@ -18,10 +18,16 @@ Inspired by serde and struct-convert crates.
 - Named fields conversion fallback to default
 - Enum not matched variants fallback to enum default
 - Struct named fields only - Middle man type conversion using `as` attribute
+- handles std types:
+  - `Option`
+  - `Result`
+  - types from `std::collections` like Vec, HashMap, etc...
 
 ## Features Wishlist
 
 - Implement attributes for unnamed fields (default, skip, as)
+- Handle `Type` to `Option<Type>`
+- Add more data on try error and provide ability to inject your own error type
 
 ## Examples
 

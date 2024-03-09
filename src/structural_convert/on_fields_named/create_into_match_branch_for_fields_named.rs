@@ -1,4 +1,3 @@
-use crate::structural_convert::is_option::is_path_option;
 use crate::structural_convert::FieldNamedAttributes;
 use darling::FromAttributes;
 use darling::FromMeta;
@@ -8,11 +7,11 @@ use quote::quote;
 
 use syn::FieldsNamed;
 use syn::Path;
+use syn::Type;
 
 use super::create_match_branch_for_fields_named::create_match_branch_for_fields_named;
 use super::create_match_branch_for_fields_named::FieldsNamedMatchBranchData;
 use super::create_match_branch_for_fields_named::IntoFromPair;
-use crate::structural_convert::is_option::is_type_option;
 
 #[derive(Debug, Default, Clone, FromMeta)]
 #[darling(default)]
@@ -23,7 +22,7 @@ pub struct IntoFieldNamedAttributes {
     skip: bool,
     default: bool,
     #[darling(rename = "as")]
-    as_type: Option<Path>,
+    as_type: Option<Type>,
 }
 
 pub(crate) fn create_into_match_branch_for_fields_named(
@@ -39,7 +38,7 @@ pub(crate) fn create_into_match_branch_for_fields_named(
             let Some(ident) = f.ident.as_ref() else {
                 unreachable!()
             };
-            let mut is_option = is_type_option(&f.ty);
+            let field_type = f.ty.clone();
 
             let attrs = match FieldNamedAttributes::from_attributes(&f.attrs) {
                 Ok(ok) => ok,
@@ -71,10 +70,6 @@ pub(crate) fn create_into_match_branch_for_fields_named(
                 None => e.as_type.clone(),
             });
 
-            if let Some(as_type) = &as_type {
-                is_option = is_path_option(as_type);
-            }
-
             let into_field_ident: Ident = attrs
                 .iter()
                 .find_map(|e| match &e.target {
@@ -92,18 +87,17 @@ pub(crate) fn create_into_match_branch_for_fields_named(
             Some(Ok(FieldsNamedMatchBranchData {
                 lhs_field_name: Some(ident.clone()),
                 into_from_pair,
-                is_option,
                 as_type,
+                field_type,
             }))
         })
         .collect::<darling::Result<Vec<_>>>()?;
 
-    Ok(create_match_branch_for_fields_named(
+    create_match_branch_for_fields_named(
         from_path,
-        |field_name, as_type| quote!(#as_type::from(#field_name)),
         |field_name| quote!(#field_name.into()),
         into_path,
         match_branch_data,
         added_default_fields,
-    ))
+    )
 }

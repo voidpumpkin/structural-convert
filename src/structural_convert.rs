@@ -26,8 +26,8 @@ use self::on_fields_named::create_into_match_branch_for_fields_named::IntoFieldN
 use self::on_fields_named::create_try_from_match_branch_for_fields_named::TryFromFieldNamedAttributes;
 use self::on_fields_named::create_try_into_match_branch_for_fields_named::TryIntoFieldNamedAttributes;
 
-pub mod is_option;
 mod on_enum_data;
+pub mod on_field_type;
 mod on_fields_named;
 mod on_fields_unnamed;
 mod on_struct_data;

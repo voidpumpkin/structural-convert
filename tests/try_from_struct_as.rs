@@ -47,4 +47,3 @@ fn fields_named() {
         Rhs { r#type: 1 }.try_into().unwrap()
     );
 }
-

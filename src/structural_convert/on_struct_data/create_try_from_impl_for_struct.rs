@@ -24,7 +24,7 @@ pub(crate) fn create_try_from_impl_for_struct(
             into_path,
             fields_unnamed,
             None,
-        ),
+        )?,
         Fields::Named(fields_named) => {
             create_try_from_match_branch_for_fields_named(from_path, fields_named, into_path)?
         }

@@ -7,11 +7,11 @@ use quote::quote;
 
 use syn::FieldsNamed;
 use syn::Path;
+use syn::Type;
 
 use super::create_match_branch_for_fields_named::create_match_branch_for_fields_named;
 use super::create_match_branch_for_fields_named::FieldsNamedMatchBranchData;
 use super::create_match_branch_for_fields_named::IntoFromPair;
-use crate::structural_convert::is_option::is_type_option;
 
 #[derive(Debug, Default, Clone, FromMeta)]
 #[darling(default)]
@@ -21,7 +21,7 @@ pub struct TryFromFieldNamedAttributes {
     rename: Option<Ident>,
     default: bool,
     #[darling(rename = "as")]
-    as_type: Option<Path>,
+    as_type: Option<Type>,
 }
 
 pub(crate) fn create_try_from_match_branch_for_fields_named(
@@ -37,7 +37,7 @@ pub(crate) fn create_try_from_match_branch_for_fields_named(
             let Some(ident) = f.ident.as_ref() else {
                 unreachable!()
             };
-            let is_option = is_type_option(&f.ty);
+            let field_type = f.ty.clone();
 
             let attrs = FieldNamedAttributes::from_attributes(&f.attrs)?.try_from;
 
@@ -79,19 +79,14 @@ pub(crate) fn create_try_from_match_branch_for_fields_named(
             Ok(FieldsNamedMatchBranchData {
                 lhs_field_name: (!default).then_some(from_field_ident),
                 into_from_pair,
-                is_option,
                 as_type,
+                field_type,
             })
         })
         .collect::<darling::Result<Vec<_>>>()?;
 
-    Ok(create_match_branch_for_fields_named(
+    create_match_branch_for_fields_named(
         from_path,
-        |field_name, as_type| {
-            quote!(
-                #as_type::try_from(#field_name).map_err(|_| "Failed to convert field".to_string())?
-            )
-        },
         |field_name| {
             quote!(
                 #field_name
@@ -101,5 +96,5 @@ pub(crate) fn create_try_from_match_branch_for_fields_named(
         into_path,
         match_branch_data,
         &[],
-    ))
+    )
 }

@@ -27,7 +27,7 @@ pub(crate) fn create_into_impl_for_struct(
             into_path,
             fields_unnamed,
             skip_after,
-        ),
+        )?,
         Fields::Named(fields_named) => create_into_match_branch_for_fields_named(
             from_path,
             fields_named,
