@@ -1,0 +1,19 @@
+[package]
+authors = ["voidpumpkin <32368314+voidpumpkin@users.noreply.github.com>"]
+edition = "2021"
+name = "structural-convert-derive"
+description = "Macros for structural-convert crate"
+version = "0.1.0"
+license = "MIT"
+repository = "https://github.com/voidpumpkin/structural-convert/"
+readme = "README.md"
+keywords = ["mapping", "derive", "map", "from", "convert"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1"
+quote = "1"
+syn = { version = "1", features = ["full"] }
+darling = "0.14.4"
