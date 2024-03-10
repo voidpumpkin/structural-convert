@@ -1,3 +1,4 @@
+use crate::structural_convert::ConversionError;
 use crate::structural_convert::FieldNamedAttributes;
 use darling::FromAttributes;
 use darling::FromMeta;
@@ -86,9 +87,10 @@ pub(crate) fn create_from_match_branch_for_fields_named(
 
     create_match_branch_for_fields_named(
         from_path,
-        |field_name| quote!(#field_name.into()),
+        |field_name, _| quote!(#field_name.into()),
         into_path,
         match_branch_data,
         &[],
+        ConversionError::empty(),
     )
 }

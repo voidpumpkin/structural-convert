@@ -1,3 +1,4 @@
+use crate::structural_convert::ConversionError;
 use crate::structural_convert::FieldNamedAttributes;
 use darling::FromAttributes;
 use darling::FromMeta;
@@ -27,8 +28,8 @@ pub struct TryFromFieldNamedAttributes {
 pub(crate) fn create_try_from_match_branch_for_fields_named(
     from_path: &Path,
     fields_named: &FieldsNamed,
-
     into_path: &Path,
+    conversion_error: ConversionError,
 ) -> darling::Result<TokenStream> {
     let match_branch_data = fields_named
         .named
@@ -87,14 +88,15 @@ pub(crate) fn create_try_from_match_branch_for_fields_named(
 
     create_match_branch_for_fields_named(
         from_path,
-        |field_name| {
+        |field_name, err| {
             quote!(
                 #field_name
-                  .try_into().map_err(|_| "Failed to convert field".to_string())?
+                  .try_into().map_err(|_| #err)?
             )
         },
         into_path,
         match_branch_data,
         &[],
+        conversion_error,
     )
 }

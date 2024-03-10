@@ -1,5 +1,6 @@
 use crate::structural_convert::on_fields_named::create_try_into_match_branch_for_fields_named::create_try_into_match_branch_for_fields_named;
 use crate::structural_convert::on_fields_unnamed::create_match_branch_for_fields_unnamed;
+use crate::structural_convert::ConversionError;
 
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;
@@ -15,6 +16,8 @@ pub(crate) fn create_try_into_impl_for_struct(
     skip_after: Option<usize>,
     default_for_fields: &[Ident],
 ) -> darling::Result<TokenStream> {
+    let conversion_error = ConversionError::new(from_path, into_path);
+
     let match_branches = match &struct_data.fields {
         Fields::Unit => {
             quote! {
@@ -23,16 +26,18 @@ pub(crate) fn create_try_into_impl_for_struct(
         }
         Fields::Unnamed(fields_unnamed) => create_match_branch_for_fields_unnamed(
             from_path,
-            |field| quote! {#field.try_into().map_err(|_| "Failed to convert field".to_string())?},
+            |field, err| quote! {#field.try_into().map_err(|_| #err)?},
             into_path,
             fields_unnamed,
             skip_after,
+            conversion_error,
         )?,
         Fields::Named(fields_named) => create_try_into_match_branch_for_fields_named(
             from_path,
             fields_named,
             into_path,
             default_for_fields,
+            conversion_error,
         )?,
     };
     Ok(quote!(

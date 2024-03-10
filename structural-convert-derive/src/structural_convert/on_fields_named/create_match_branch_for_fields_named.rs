@@ -7,6 +7,7 @@ use syn::Type;
 use crate::structural_convert::on_field_type::recursive_type;
 use crate::structural_convert::on_field_type::MyType;
 use crate::structural_convert::on_fields_unnamed::recursively_create_expr;
+use crate::structural_convert::ConversionError;
 
 /// Expected to become these tokens:
 /// #from_path{
@@ -45,10 +46,11 @@ pub struct IntoFromPair {
 
 pub fn create_match_branch_for_fields_named(
     from_path: &Path,
-    into_expr: impl Fn(TokenStream) -> TokenStream,
+    into_expr: impl Fn(TokenStream, TokenStream) -> TokenStream,
     into_path: &Path,
     mut match_branch_data: Vec<FieldsNamedMatchBranchData>,
     added_default_fields: &[Ident],
+    conversion_error: ConversionError,
 ) -> darling::Result<TokenStream> {
     for default_field_name in added_default_fields {
         match_branch_data.push(FieldsNamedMatchBranchData {
@@ -66,10 +68,19 @@ pub fn create_match_branch_for_fields_named(
     let mut into_field_name = vec![];
     let mut from_field_expr = vec![];
     for item in match_branch_data.into_iter() {
+        let mut conversion_error = conversion_error.clone();
+
         if let Some(field_name) = item.lhs_field_name {
             lhs_field_name.push(field_name);
+
+            conversion_error
+                .from
+                .named(&item.into_from_pair.into_field_name);
         }
 
+        conversion_error
+            .into
+            .named(&item.into_from_pair.into_field_name);
         into_field_name.push(item.into_from_pair.into_field_name);
 
         let mut expr = quote!(Default::default());
@@ -92,8 +103,14 @@ pub fn create_match_branch_for_fields_named(
                     parsed_as_type = *inner.clone();
                 }
 
-                let as_expr =
-                    recursively_create_expr(expr.clone(), parsed_as_type, &identy, &into_expr);
+                let as_expr = recursively_create_expr(
+                    expr.clone(),
+                    parsed_as_type,
+                    &identy,
+                    &into_expr,
+                    &mut conversion_error,
+                    0,
+                );
 
                 identy = quote!({
                     let temp: #as_type = #as_expr;
@@ -101,7 +118,14 @@ pub fn create_match_branch_for_fields_named(
                 });
             }
 
-            expr = recursively_create_expr(expr, recursive_type(&tiep)?, &identy, &into_expr);
+            expr = recursively_create_expr(
+                expr,
+                recursive_type(&tiep)?,
+                &identy,
+                &into_expr,
+                &mut conversion_error,
+                0,
+            );
         }
 
         from_field_expr.push(expr);

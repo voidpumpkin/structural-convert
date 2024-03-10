@@ -9,14 +9,11 @@ fn variant_is_unit_default() {
         A,
     }
 
-    #[derive(Debug, PartialEq)]
-    #[derive(Default)]
+    #[derive(Debug, PartialEq, Default)]
     enum Lhs {
         #[default]
         X,
     }
-
-    
 
     assert_eq!(Lhs::default(), Rhs::A.try_into().unwrap());
 }

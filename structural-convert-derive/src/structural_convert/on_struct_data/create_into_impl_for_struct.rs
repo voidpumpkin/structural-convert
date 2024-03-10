@@ -1,5 +1,6 @@
 use crate::structural_convert::on_fields_named::create_into_match_branch_for_fields_named::create_into_match_branch_for_fields_named;
 use crate::structural_convert::on_fields_unnamed::create_match_branch_for_fields_unnamed;
+use crate::structural_convert::ConversionError;
 
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;
@@ -23,10 +24,11 @@ pub(crate) fn create_into_impl_for_struct(
         }
         Fields::Unnamed(fields_unnamed) => create_match_branch_for_fields_unnamed(
             from_path,
-            |field| quote! {#field.into()},
+            |field, _| quote! {#field.into()},
             into_path,
             fields_unnamed,
             skip_after,
+            ConversionError::empty(),
         )?,
         Fields::Named(fields_named) => create_into_match_branch_for_fields_named(
             from_path,

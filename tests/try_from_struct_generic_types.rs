@@ -27,6 +27,18 @@ fn unnamed_fields_vec() {
 }
 
 #[test]
+fn unnamed_fields_ve2c() {
+    #[derive(Debug, PartialEq)]
+    struct Rhs(Vec<Vec<Vec<Vec<i8>>>>);
+
+    #[derive(Debug, PartialEq, StructuralConvert)]
+    #[convert(try_from(path = "Rhs"))]
+    struct Lhs(Vec<Vec<Vec<Vec<i8>>>>);
+
+    // assert_eq!(Lhs(vec![1]), Rhs(vec![1]).try_into().unwrap());
+}
+
+#[test]
 fn unnamed_fields_tuple() {
     #[derive(Debug, PartialEq)]
     struct Rhs((i8, i8));
