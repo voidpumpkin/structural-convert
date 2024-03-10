@@ -96,7 +96,7 @@ pub(crate) fn create_try_into_match_branch_for_fields_named(
 
     create_match_branch_for_fields_named(
         from_path,
-        |field_name, err| quote!(#field_name.try_into().map_err(|_| #err)?),
+        |field_name, err| quote!(#field_name.try_into().map_err(|err| #err)?),
         into_path,
         match_branch_data,
         added_default_fields,

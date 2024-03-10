@@ -92,13 +92,13 @@ pub(crate) fn create_try_into_impl_for_enum(
                 Fields::Unit => {
                     let err = conversion_error.to_string();
                     quote! {
-                        #from_path => #into_path.try_into().map_err(|_| #err.to_string())?
+                        #from_path => #into_path.try_into().map_err(|err| #err)?
                     }
                 }
                 Fields::Unnamed(fields_unnamed) => {
                     match create_match_branch_for_fields_unnamed(
                         &from_path,
-                        |field, err| quote!(#field.try_into().map_err(|_| #err.to_string())?),
+                        |field, err| quote!(#field.try_into().map_err(|err| #err)?),
                         &into_path,
                         fields_unnamed,
                         skip_after,

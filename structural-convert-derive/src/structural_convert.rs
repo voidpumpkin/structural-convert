@@ -138,7 +138,11 @@ impl fmt::Display for ConversionError {
 impl ToTokens for ConversionError {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let err = self.to_string();
-        tokens.append_all(quote!(format!(#err)))
+        tokens.append_all(quote!(format!(
+            "{}\noriginal error:\n{}",
+            format!(#err),
+            err
+        )))
     }
 }
 

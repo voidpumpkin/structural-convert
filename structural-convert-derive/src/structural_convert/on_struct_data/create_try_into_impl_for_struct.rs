@@ -26,7 +26,7 @@ pub(crate) fn create_try_into_impl_for_struct(
         }
         Fields::Unnamed(fields_unnamed) => create_match_branch_for_fields_unnamed(
             from_path,
-            |field, err| quote! {#field.try_into().map_err(|_| #err)?},
+            |field, err| quote! {#field.try_into().map_err(|err| #err)?},
             into_path,
             fields_unnamed,
             skip_after,
