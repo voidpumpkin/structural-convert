@@ -3,7 +3,7 @@ use structural_convert::StructuralConvert;
 #[derive(Debug, PartialEq)]
 struct Q(u32);
 #[derive(Debug, PartialEq, StructuralConvert)]
-#[convert(try_from(path = "Q"))]
+#[convert(try_from(Q))]
 struct W(u32);
 
 #[test]
@@ -12,7 +12,7 @@ fn fields_unnamed() {
     struct Rhs(i8, Option<Q>);
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     struct Lhs(i32, Option<W>);
 
     assert_eq!(Lhs(1, Some(W(2))), Rhs(1, Some(Q(2))).try_into().unwrap());
@@ -27,7 +27,7 @@ fn fields_named() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     struct Lhs {
         z: i32,
         x: Option<W>,

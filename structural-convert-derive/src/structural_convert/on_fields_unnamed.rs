@@ -15,7 +15,7 @@ use crate::structural_convert::on_field_type::MyType;
 use super::ConversionError;
 
 /// item1, item2, item3 ...
-pub(crate) fn create_match_branch_for_fields_unnamed(
+pub fn create_match_branch_for_fields_unnamed(
     from_path: &Path,
     into_expr_fn: impl Fn(TokenStream, TokenStream) -> TokenStream,
     into_path: &Path,

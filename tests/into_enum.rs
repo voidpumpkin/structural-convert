@@ -3,7 +3,7 @@ use structural_convert::StructuralConvert;
 #[test]
 fn variant_is_unit() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     enum Rhs {
         A,
         B,
@@ -22,7 +22,7 @@ fn variant_is_unit() {
 #[test]
 fn variant_is_unnamed() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     enum Rhs {
         A(i8, u32),
     }
@@ -38,7 +38,7 @@ fn variant_is_unnamed() {
 #[test]
 fn variant_is_named() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     enum Rhs {
         A { z: i8, x: u32 },
     }

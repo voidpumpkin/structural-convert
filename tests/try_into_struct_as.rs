@@ -21,14 +21,14 @@ fn fields_named_i32() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_into(path = "Rhs"))]
+    #[convert(try_into(Rhs))]
     pub struct Lhs {
         #[convert(try_into(as = "RhsEnum"))]
         pub r#type: LhsEnum,
     }
 
     #[derive(Debug, PartialEq, Eq, StructuralConvert)]
-    #[convert(try_into(path = "RhsEnum"))]
+    #[convert(try_into(RhsEnum))]
     pub enum LhsEnum {
         Mobile,
         Home,
@@ -50,14 +50,14 @@ fn fields_named_option() {
     #[derive(Debug, PartialEq)]
     struct Q(u32);
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(from(path = "Q"))]
+    #[convert(from(Q))]
     struct W(u32);
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_into(path = "Lhs"))]
+    #[convert(try_into(Lhs))]
     struct Rhs {
         z: i8,
-        #[convert(try_into(for = "Lhs", as = "Option::<Q>"))]
+        #[convert(try_into(Lhs, as = "Option::<Q>"))]
         x: Q,
     }
 

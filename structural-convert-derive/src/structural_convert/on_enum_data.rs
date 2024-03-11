@@ -1,4 +1,4 @@
-use super::ContainerAttributes;
+use super::attributes::ContainerAttributes;
 use create_from_impl_for_enum::create_from_impl_for_enum;
 use create_into_impl_for_enum::create_into_impl_for_enum;
 use create_try_from_impl_for_enum::create_try_from_impl_for_enum;
@@ -14,7 +14,7 @@ pub mod create_try_from_impl_for_enum;
 pub mod create_try_into_impl_for_enum;
 pub mod utils;
 
-pub(crate) fn on_enum_data(
+pub fn on_enum_data(
     input_ident_path: &Path,
     enum_data: &DataEnum,
     container_attributes: &ContainerAttributes,

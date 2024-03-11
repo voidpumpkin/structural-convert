@@ -9,7 +9,7 @@ fn variant_is_named_default_to_field() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(from(path = "Rhs"))]
+    #[convert(from(Rhs))]
     struct Lhs {
         z: i32,
         x: u32,

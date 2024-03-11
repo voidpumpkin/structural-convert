@@ -1,0 +1,4 @@
+pub mod from_enum_variant_attributes;
+pub mod into_enum_variant_attributes;
+pub mod try_from_enum_variant_attributes;
+pub mod try_into_enum_variant_attributes;

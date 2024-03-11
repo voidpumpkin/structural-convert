@@ -13,9 +13,9 @@ pub mod create_into_impl_for_struct;
 pub mod create_try_from_impl_for_struct;
 pub mod create_try_into_impl_for_struct;
 
-use super::ContainerAttributes;
+use super::attributes::ContainerAttributes;
 
-pub(crate) fn on_struct_data(
+pub fn on_struct_data(
     input_ident_path: &Path,
     struct_data: &DataStruct,
     container_attributes: &ContainerAttributes,

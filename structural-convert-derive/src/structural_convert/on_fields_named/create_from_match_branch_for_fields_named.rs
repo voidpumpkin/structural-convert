@@ -1,31 +1,18 @@
+use crate::structural_convert::attributes::FieldNamedAttributes;
 use crate::structural_convert::ConversionError;
-use crate::structural_convert::FieldNamedAttributes;
 use darling::FromAttributes;
-use darling::FromMeta;
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;
 use quote::quote;
 
 use syn::FieldsNamed;
 use syn::Path;
-use syn::Type;
 
 use super::create_match_branch_for_fields_named::create_match_branch_for_fields_named;
 use super::create_match_branch_for_fields_named::FieldsNamedMatchBranchData;
 use super::create_match_branch_for_fields_named::IntoFromPair;
 
-#[derive(Debug, Default, Clone, FromMeta)]
-#[darling(default)]
-pub struct FromFieldNamedAttributes {
-    #[darling(rename = "for")]
-    target: Option<Path>,
-    rename: Option<Ident>,
-    default: bool,
-    #[darling(rename = "as")]
-    as_type: Option<Type>,
-}
-
-pub(crate) fn create_from_match_branch_for_fields_named(
+pub fn create_from_match_branch_for_fields_named(
     from_path: &Path,
     fields_named: &FieldsNamed,
     into_path: &Path,

@@ -43,7 +43,7 @@ struct Rhs {
 }
 
 #[derive(Debug, PartialEq, StructuralConvert)]
-#[convert(from(path = "Rhs"))]
+#[convert(from(Rhs))]
 struct Lhs {
     z: i32,
     x: u32,
@@ -77,7 +77,7 @@ impl From<Rhs> for Lhs {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(from(path = "Rhs"))]
+    #[convert(from(Rhs))]
     enum Lhs {
         A { z: i32, x: u32 },
     }

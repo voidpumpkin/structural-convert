@@ -1,11 +1,10 @@
 use crate::structural_convert::on_enum_data::utils::concat_enum_with_variant;
 use crate::structural_convert::on_fields_named::create_from_match_branch_for_fields_named::create_from_match_branch_for_fields_named;
 
+use crate::structural_convert::attributes::EnumVariantAttributes;
 use crate::structural_convert::on_fields_unnamed::create_match_branch_for_fields_unnamed;
 use crate::structural_convert::ConversionError;
-use crate::structural_convert::EnumVariantAttributes;
 use darling::FromAttributes;
-use darling::FromMeta;
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -13,17 +12,7 @@ use syn::DataEnum;
 use syn::Fields;
 use syn::Path;
 
-#[derive(Debug, Default, Clone, FromMeta)]
-#[darling(default)]
-pub struct FromEnumVariantAttributes {
-    #[darling(rename = "for")]
-    target: Option<Path>,
-    skip: bool,
-    rename: Option<Ident>,
-    default: bool,
-}
-
-pub(crate) fn create_from_impl_for_enum(
+pub fn create_from_impl_for_enum(
     from_path: &Path,
     enum_data: &DataEnum,
     into_path: &Path,

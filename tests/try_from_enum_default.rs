@@ -8,7 +8,7 @@ fn variant_is_unit_default_to_field() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     enum Lhs {
         #[convert(try_from(default))]
         A,
@@ -25,7 +25,7 @@ fn variant_is_unnamed_default_to_field() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     enum Lhs {
         #[convert(try_from(default))]
         A(i32, u32),
@@ -45,7 +45,7 @@ fn variant_is_named_default_to_field() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     enum Lhs {
         A {
             z: i32,

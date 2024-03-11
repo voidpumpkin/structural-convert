@@ -3,13 +3,13 @@ use structural_convert::StructuralConvert;
 #[derive(Debug, PartialEq)]
 struct Q(u32);
 #[derive(Debug, PartialEq, StructuralConvert)]
-#[convert(from(path = "Q"))]
+#[convert(from(Q))]
 struct W(u32);
 
 #[test]
 fn fields_unnamed() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs(i8, Option<Q>);
 
     #[derive(Debug, PartialEq)]
@@ -21,7 +21,7 @@ fn fields_unnamed() {
 #[test]
 fn fields_named() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         z: i8,
         x: Option<Q>,

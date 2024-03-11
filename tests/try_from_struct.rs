@@ -6,7 +6,7 @@ fn unit() {
     struct Rhs;
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     struct Lhs;
 
     assert_eq!(Lhs, Rhs.try_into().unwrap());
@@ -18,7 +18,7 @@ fn fields_unnamed() {
     struct Rhs(i8, u32);
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     struct Lhs(i32, u32);
 
     assert_eq!(Lhs(1, 2), Rhs(1, 2).try_into().unwrap());
@@ -33,7 +33,7 @@ fn fields_named() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     struct Lhs {
         z: i32,
         x: u32,

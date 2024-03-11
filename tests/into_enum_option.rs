@@ -3,13 +3,13 @@ use structural_convert::StructuralConvert;
 #[derive(Debug, PartialEq)]
 struct Q(u32);
 #[derive(Debug, PartialEq, StructuralConvert)]
-#[convert(from(path = "Q"))]
+#[convert(from(Q))]
 struct W(u32);
 
 #[test]
 fn variant_is_unnamed() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     enum Rhs {
         A(i8, Option<Q>),
     }
@@ -25,7 +25,7 @@ fn variant_is_unnamed() {
 #[test]
 fn variant_is_named() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     enum Rhs {
         A { z: i8, x: Option<Q> },
     }

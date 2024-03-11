@@ -3,7 +3,7 @@ use structural_convert::StructuralConvert;
 #[test]
 fn variant_is_named_default_to_field() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs", default_for_fields("y", "e")))]
+    #[convert(into(Lhs, default_for_fields("y", "e")))]
     struct Rhs {
         z: i8,
         x: u32,

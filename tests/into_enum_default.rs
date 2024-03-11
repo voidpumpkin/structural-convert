@@ -3,7 +3,7 @@ use structural_convert::StructuralConvert;
 #[test]
 fn variant_is_unit_default() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs", default))]
+    #[convert(into(Lhs, default))]
     enum Rhs {
         #[convert(into(skip))]
         A,
@@ -21,7 +21,7 @@ fn variant_is_unit_default() {
 #[test]
 fn variant_is_unnamed_default() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs", default))]
+    #[convert(into(Lhs, default))]
     enum Rhs {
         #[convert(into(skip))]
         A(i8, u32),
@@ -44,7 +44,7 @@ fn variant_is_unnamed_default() {
 #[test]
 fn variant_is_named_default() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs", default))]
+    #[convert(into(Lhs, default))]
     enum Rhs {
         #[convert(into(skip))]
         A { z: i8, x: u32 },
@@ -67,7 +67,7 @@ fn variant_is_named_default() {
 #[test]
 fn variant_is_named_default_to_field() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs", default_for_fields("y", "e")))]
+    #[convert(into(Lhs, default_for_fields("y", "e")))]
     enum Rhs {
         A { z: i8, x: u32 },
     }

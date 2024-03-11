@@ -9,7 +9,7 @@ fn variant_is_unit_non_targeted() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     enum Lhs {
         #[convert(try_from(skip))]
         _C,
@@ -37,9 +37,9 @@ fn variant_is_unit_targeted() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs1"), try_from(path = "Rhs2"))]
+    #[convert(try_from(Rhs1), try_from(Rhs2))]
     enum Lhs {
-        #[convert(try_from(for = "Rhs1", skip), try_from(for = "Rhs2"))]
+        #[convert(try_from(Rhs1, skip), try_from(Rhs2))]
         C,
         A,
         B,
@@ -60,7 +60,7 @@ fn variant_is_unnamed() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     enum Lhs {
         A(i32, u32),
     }
@@ -76,7 +76,7 @@ fn variant_is_named() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     enum Lhs {
         A { z: i32, x: u32 },
     }

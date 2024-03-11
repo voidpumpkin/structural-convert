@@ -9,7 +9,7 @@ use syn::DataStruct;
 use syn::Fields;
 use syn::Path;
 
-pub(crate) fn create_try_into_impl_for_struct(
+pub fn create_try_into_impl_for_struct(
     from_path: &Path,
     struct_data: &DataStruct,
     into_path: &Path,

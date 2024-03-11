@@ -5,7 +5,7 @@ use structural_convert::StructuralConvert;
 #[test]
 fn unnamed_fields_option() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs(Option<i8>);
 
     #[derive(Debug, PartialEq)]
@@ -17,7 +17,7 @@ fn unnamed_fields_option() {
 #[test]
 fn unnamed_fields_vec() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs(Vec<i8>);
 
     #[derive(Debug, PartialEq)]
@@ -29,7 +29,7 @@ fn unnamed_fields_vec() {
 #[test]
 fn unnamed_fields_tuple() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs((i8, i8));
 
     #[derive(Debug, PartialEq)]
@@ -41,7 +41,7 @@ fn unnamed_fields_tuple() {
 #[test]
 fn unnamed_fields_vec_tuples() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs(Vec<(i8, i8)>);
 
     #[derive(Debug, PartialEq)]
@@ -53,7 +53,7 @@ fn unnamed_fields_vec_tuples() {
 #[test]
 fn unnamed_fields_option_vec() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs(Option<Vec<i8>>);
 
     #[derive(Debug, PartialEq)]
@@ -65,7 +65,7 @@ fn unnamed_fields_option_vec() {
 #[test]
 fn unnamed_fields_vec_option() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs(Vec<Option<i8>>);
 
     #[derive(Debug, PartialEq)]
@@ -77,7 +77,7 @@ fn unnamed_fields_vec_option() {
 #[test]
 fn unnamed_fields_vec_option_tuple() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs(Vec<Option<(i32, i8)>>);
 
     #[derive(Debug, PartialEq)]
@@ -88,7 +88,7 @@ fn unnamed_fields_vec_option_tuple() {
 #[test]
 fn unnamed_fields_vec_tuple_option() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs(Vec<(Option<i8>, Option<i8>)>);
 
     #[derive(Debug, PartialEq)]
@@ -102,7 +102,7 @@ fn unnamed_fields_vec_tuple_option() {
 #[test]
 fn unnamed_fields_tuple_vec_option() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs((Vec<Option<i8>>, Vec<Option<i8>>));
 
     #[derive(Debug, PartialEq)]
@@ -116,7 +116,7 @@ fn unnamed_fields_tuple_vec_option() {
 #[test]
 fn unnamed_fields_result() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs(Result<i8, u8>);
 
     #[derive(Debug, PartialEq)]
@@ -128,7 +128,7 @@ fn unnamed_fields_result() {
 #[test]
 fn unnamed_fields_hash_map() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs(HashMap<u8, i8>);
 
     #[derive(Debug, PartialEq)]
@@ -145,7 +145,7 @@ fn unnamed_fields_hash_map() {
 #[test]
 fn named_fields_option() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         item: Option<i8>,
     }
@@ -160,7 +160,7 @@ fn named_fields_option() {
 #[test]
 fn named_fields_vec() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         item: Vec<i8>,
     }
@@ -175,7 +175,7 @@ fn named_fields_vec() {
 #[test]
 fn named_fields_tuple() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         item: (i8, i8),
     }
@@ -190,7 +190,7 @@ fn named_fields_tuple() {
 #[test]
 fn named_fields_vec_tuples() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         item: Vec<(i8, i8)>,
     }
@@ -208,7 +208,7 @@ fn named_fields_vec_tuples() {
 #[test]
 fn named_fields_option_vec() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         item: Option<Vec<i8>>,
     }
@@ -232,7 +232,7 @@ fn named_fields_option_vec() {
 #[test]
 fn named_fields_vec_option() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         item: Vec<Option<i8>>,
     }
@@ -256,7 +256,7 @@ fn named_fields_vec_option() {
 #[test]
 fn named_fields_vec_option_tuple() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         item: Vec<Option<(i32, i8)>>,
     }
@@ -280,7 +280,7 @@ fn named_fields_vec_option_tuple() {
 #[test]
 fn named_fields_vec_tuple_option() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         item: Vec<(Option<i8>, Option<i8>)>,
     }
@@ -304,7 +304,7 @@ fn named_fields_vec_tuple_option() {
 #[test]
 fn named_fields_tuple_vec_option() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         item: (Vec<Option<i8>>, Vec<Option<i8>>),
     }
@@ -328,7 +328,7 @@ fn named_fields_tuple_vec_option() {
 #[test]
 fn named_fields_result() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         item: Result<i8, u8>,
     }
@@ -344,7 +344,7 @@ fn named_fields_result() {
 #[test]
 fn named_fields_hash_map() {
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(into(path = "Lhs"))]
+    #[convert(into(Lhs))]
     struct Rhs {
         item: HashMap<u8, i8>,
     }

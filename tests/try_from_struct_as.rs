@@ -26,14 +26,14 @@ fn fields_named() {
     }
 
     #[derive(Debug, PartialEq, StructuralConvert)]
-    #[convert(try_from(path = "Rhs"))]
+    #[convert(try_from(Rhs))]
     pub struct Lhs {
         #[convert(try_from(as = "RhsEnum"))]
         pub r#type: LhsEnum,
     }
 
     #[derive(Debug, PartialEq, Eq, StructuralConvert, Default)]
-    #[convert(try_from(path = "RhsEnum"))]
+    #[convert(try_from(RhsEnum))]
     pub enum LhsEnum {
         #[default]
         Mobile,
