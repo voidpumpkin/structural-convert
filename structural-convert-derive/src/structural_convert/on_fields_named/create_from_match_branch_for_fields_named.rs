@@ -1,5 +1,5 @@
 use crate::structural_convert::attributes::FieldNamedAttributes;
-use crate::structural_convert::ConversionError;
+use crate::structural_convert::conversion_error::ConversionError;
 use darling::FromAttributes;
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;

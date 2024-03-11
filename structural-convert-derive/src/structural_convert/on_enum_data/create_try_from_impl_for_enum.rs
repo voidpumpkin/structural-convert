@@ -2,8 +2,8 @@ use crate::structural_convert::on_enum_data::utils::concat_enum_with_variant;
 use crate::structural_convert::on_fields_named::create_try_from_match_branch_for_fields_named::create_try_from_match_branch_for_fields_named;
 
 use crate::structural_convert::attributes::EnumVariantAttributes;
+use crate::structural_convert::conversion_error::ConversionError;
 use crate::structural_convert::on_fields_unnamed::create_match_branch_for_fields_unnamed;
-use crate::structural_convert::ConversionError;
 use darling::FromAttributes;
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;

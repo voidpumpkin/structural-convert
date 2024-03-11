@@ -12,7 +12,7 @@ use syn::Path;
 use crate::structural_convert::on_field_type::recursive_type;
 use crate::structural_convert::on_field_type::MyType;
 
-use super::ConversionError;
+use super::conversion_error::ConversionError;
 
 /// item1, item2, item3 ...
 pub fn create_match_branch_for_fields_unnamed(

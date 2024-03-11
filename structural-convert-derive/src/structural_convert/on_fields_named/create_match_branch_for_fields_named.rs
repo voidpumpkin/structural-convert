@@ -4,10 +4,10 @@ use quote::quote;
 use syn::Path;
 use syn::Type;
 
+use crate::structural_convert::conversion_error::ConversionError;
 use crate::structural_convert::on_field_type::recursive_type;
 use crate::structural_convert::on_field_type::MyType;
 use crate::structural_convert::on_fields_unnamed::recursively_create_expr;
-use crate::structural_convert::ConversionError;
 
 /// Expected to become these tokens:
 /// #from_path{
